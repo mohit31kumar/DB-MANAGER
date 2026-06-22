@@ -1,0 +1,115 @@
+<%- include('../partials/header') %>
+
+<div class="row">
+  <div class="col-md-3 sidebar">
+    <h6 class="text-muted mb-2"><%= db %>.<%= table %></h6>
+    <ul class="list-unstyled">
+      <li><a href="/table/<%= db %>/<%= table %>/structure" class="active"><i class="bi bi-gear"></i> Structure</a></li>
+      <li><a href="/table/<%= db %>/<%= table %>/browse"><i class="bi bi-eye"></i> Browse</a></li>
+      <li><a href="/table/<%= db %>/<%= table %>/insert"><i class="bi bi-plus-circle"></i> Insert</a></li>
+    </ul>
+    <hr>
+    <a href="/database/<%= db %>" class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-arrow-left"></i> Back to Tables</a>
+    <%- include('../partials/credit') %>
+  </div>
+  <div class="col-md-9 main-content">
+    <h4>Add Column: <code><%= db %>.<%= table %></code></h4>
+    <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+
+    <form method="POST" action="/table/<%= db %>/<%= table %>/structure/add-column">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Column Name</label>
+          <input type="text" class="form-control" name="col_name" required pattern="[a-zA-Z0-9_]+" placeholder="column_name">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Type</label>
+          <select class="form-select" name="col_type" id="colType" required>
+            <option value="INT">INT</option>
+            <option value="BIGINT">BIGINT</option>
+            <option value="SMALLINT">SMALLINT</option>
+            <option value="TINYINT">TINYINT</option>
+            <option value="FLOAT">FLOAT</option>
+            <option value="DOUBLE">DOUBLE</option>
+            <option value="DECIMAL">DECIMAL</option>
+            <option value="VARCHAR">VARCHAR</option>
+            <option value="CHAR">CHAR</option>
+            <option value="TEXT">TEXT</option>
+            <option value="LONGTEXT">LONGTEXT</option>
+            <option value="MEDIUMTEXT">MEDIUMTEXT</option>
+            <option value="BLOB">BLOB</option>
+            <option value="DATE">DATE</option>
+            <option value="DATETIME">DATETIME</option>
+            <option value="TIMESTAMP">TIMESTAMP</option>
+            <option value="TIME">TIME</option>
+            <option value="YEAR">YEAR</option>
+            <option value="BOOLEAN">BOOLEAN</option>
+            <option value="ENUM">ENUM</option>
+            <option value="SET">SET</option>
+            <option value="JSON">JSON</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Length</label>
+          <input type="text" class="form-control" name="col_length" placeholder="e.g. 255">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Extra</label>
+          <select class="form-select" name="col_extra">
+            <option value="">None</option>
+            <option value="AUTO_INCREMENT">AUTO_INCREMENT</option>
+            <option value="UNSIGNED">UNSIGNED</option>
+            <option value="UNSIGNED ZEROFILL">UNSIGNED ZEROFILL</option>
+            <option value="ON UPDATE CURRENT_TIMESTAMP">ON UPDATE CURRENT_TIMESTAMP</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Allow NULL</label>
+          <select class="form-select" name="col_null">
+            <option value="NO">NOT NULL</option>
+            <option value="YES">NULL</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Default Value</label>
+          <input type="text" class="form-control" name="col_default" placeholder="NULL or value">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">&nbsp;</label>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" name="col_default_null" id="defaultNull">
+            <label class="form-check-label" for="defaultNull">Default NULL</label>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Position</label>
+          <select class="form-select" name="col_position" id="colPosition">
+            <option value="">End (last)</option>
+            <option value="first">FIRST</option>
+            <option value="after">AFTER...</option>
+          </select>
+        </div>
+        <div class="col-md-3" id="afterColGroup" style="display:none">
+          <label class="form-label">After Column</label>
+          <select class="form-select" name="col_after">
+            <% columns.forEach(col => { %>
+              <option value="<%= col.Field %>"><%= col.Field %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+      <div class="mt-4">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-plus"></i> Add Column</button>
+        <a href="/table/<%= db %>/<%= table %>/structure" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('colPosition').addEventListener('change', function() {
+  document.getElementById('afterColGroup').style.display = this.value === 'after' ? '' : 'none';
+});
+</script>
+
+<%- include('../partials/footer') %>

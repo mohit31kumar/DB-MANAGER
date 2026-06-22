@@ -1,0 +1,145 @@
+<%- include('../partials/header') %>
+
+<div class="row">
+  <div class="col-md-3 sidebar">
+    <h6 class="text-muted mb-2"><%= db %>.<%= table %></h6>
+    <ul class="list-unstyled">
+      <li><a href="/table/<%= db %>/<%= table %>/structure"><i class="bi bi-gear"></i> Structure</a></li>
+      <li><a href="/table/<%= db %>/<%= table %>/browse" class="active"><i class="bi bi-eye"></i> Browse</a></li>
+      <li><a href="/table/<%= db %>/<%= table %>/insert"><i class="bi bi-plus-circle"></i> Insert</a></li>
+    </ul>
+    <hr>
+    <a href="/database/<%= db %>" class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-arrow-left"></i> Back to Tables</a>
+    <%- include('../partials/credit') %>
+  </div>
+  <div class="col-md-9 main-content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Browse: <code><%= db %>.<%= table %></code></h4>
+      <div>
+        <a href="/table/<%= db %>/<%= table %>/insert" class="btn btn-success btn-sm"><i class="bi bi-plus"></i> Insert Row</a>
+        <form method="POST" action="/table/<%= db %>/<%= table %>/truncate" class="d-inline" onsubmit="return confirm('Are you sure you want to TRUNCATE this table? All data will be deleted!')">
+          <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Truncate</button>
+        </form>
+      </div>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert-danger alert-dismissible fade show">
+        <%= error %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    <% } %>
+
+    <p class="text-muted">Page <%= page %> of <%= totalPages %> (<%= totalRows %> rows)</p>
+
+    <% if (rows.length > 0 && idColumn) { %>
+    <form method="POST" action="/table/<%= db %>/<%= table %>/delete-multi" id="bulkForm">
+      <div id="bulkActions" class="mb-2 d-none">
+        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete selected rows?')">
+          <i class="bi bi-trash"></i> Delete Selected (<span id="selectedCount">0</span>)
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-sm browse-table">
+          <thead class="table-dark">
+            <tr>
+              <th class="col-check"><input type="checkbox" id="selectAll"></th>
+              <% columns.forEach(col => { %>
+                <th>
+                  <a href="/table/<%= db %>/<%= table %>/browse?page=<%= page %>&perPage=<%= perPage %>&sort=<%= col %>&dir=<%= sortCol === col && sortDir === 'ASC' ? 'DESC' : 'ASC' %>" class="text-white text-decoration-none">
+                    <%= col %>
+                    <% if (sortCol === col) { %>
+                      <i class="bi bi-arrow-<%= sortDir === 'ASC' ? 'up' : 'down' %>"></i>
+                    <% } %>
+                  </a>
+                </th>
+              <% }) %>
+              <th class="col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% rows.forEach(row => { %>
+              <tr>
+                <td class="col-check"><input type="checkbox" name="ids" value="<%= row[idColumn] %>" class="row-check"></td>
+                <% columns.forEach(col => { %>
+                  <td class="cell-overflow" title="<%= row[col] %>"><%= row[col] === null ? '<NULL>' : row[col] %></td>
+                <% }) %>
+                <td class="col-actions">
+                  <div class="btn-group btn-group-sm">
+                    <a href="/table/<%= db %>/<%= table %>/edit/<%= encodeURIComponent(row[idColumn]) %>" class="btn btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                    <form method="POST" action="/table/<%= db %>/<%= table %>/delete/<%= encodeURIComponent(row[idColumn]) %>" class="d-inline" onsubmit="return confirm('Delete this row?')">
+                      <button type="submit" class="btn btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </form>
+    <% } else if (rows.length === 0) { %>
+      <div class="alert alert-info">No rows found in this table.</div>
+    <% } %>
+
+    <% if (totalPages > 1) { %>
+      <nav>
+        <ul class="pagination pagination-sm">
+          <li class="page-item <%= page <= 1 ? 'disabled' : '' %>">
+            <a class="page-link" href="/table/<%= db %>/<%= table %>/browse?page=<%= page - 1 %>&perPage=<%= perPage %>&sort=<%= sortCol || '' %>&dir=<%= sortDir %>">Prev</a>
+          </li>
+          <% for (let p = Math.max(1, page - 2); p <= Math.min(totalPages, page + 2); p++) { %>
+            <li class="page-item <%= p === page ? 'active' : '' %>">
+              <a class="page-link" href="/table/<%= db %>/<%= table %>/browse?page=<%= p %>&perPage=<%= perPage %>&sort=<%= sortCol || '' %>&dir=<%= sortDir %>"><%= p %></a>
+            </li>
+          <% } %>
+          <li class="page-item <%= page >= totalPages ? 'disabled' : '' %>">
+            <a class="page-link" href="/table/<%= db %>/<%= table %>/browse?page=<%= page + 1 %>&perPage=<%= perPage %>&sort=<%= sortCol || '' %>&dir=<%= sortDir %>">Next</a>
+          </li>
+        </ul>
+      </nav>
+    <% } %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const selectAll = document.getElementById('selectAll');
+  const rowChecks = document.querySelectorAll('.row-check');
+  const bulkForm = document.getElementById('bulkForm');
+  const bulkActions = document.getElementById('bulkActions');
+  const selectedCount = document.getElementById('selectedCount');
+
+  if (selectAll) {
+    selectAll.addEventListener('change', function() {
+      rowChecks.forEach(cb => cb.checked = this.checked);
+      updateBulk();
+    });
+  }
+
+  rowChecks.forEach(cb => {
+    cb.addEventListener('change', updateBulk);
+  });
+
+  function updateBulk() {
+    const count = document.querySelectorAll('.row-check:checked').length;
+    selectedCount.textContent = count;
+    if (count > 0) {
+      bulkActions.classList.remove('d-none');
+    } else {
+      bulkActions.classList.add('d-none');
+    }
+  }
+
+  if (bulkForm) {
+    bulkForm.addEventListener('submit', function(e) {
+      if (!confirm('Delete selected rows?')) {
+        e.preventDefault();
+      }
+    });
+  }
+});
+</script>
+
+<%- include('../partials/footer') %>

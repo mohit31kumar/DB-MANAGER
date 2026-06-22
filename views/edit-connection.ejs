@@ -1,0 +1,109 @@
+<%- include('partials/header') %>
+
+<div class="row">
+  <div class="col-md-3 sidebar">
+    <h6 class="text-muted mb-2">Connections</h6>
+    <ul class="list-unstyled">
+      <li><a href="/connections"><i class="bi bi-hdd-network"></i> Manage Connections</a></li>
+      <li><a href="/connections/add"><i class="bi bi-plus-circle"></i> Add Connection</a></li>
+    </ul>
+    <%- include('partials/credit') %>
+  </div>
+  <div class="col-md-9 main-content">
+    <h4>Edit Connection: <%= conn.name %></h4>
+    <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <label class="form-label fw-bold">Paste Connection String</label>
+        <div class="input-group">
+          <input type="text" class="form-control font-monospace" id="connString" placeholder="mysql://user:password@host:port/database">
+          <button type="button" class="btn btn-outline-primary" id="parseBtn"><i class="bi bi-magic"></i> Parse & Fill</button>
+        </div>
+      </div>
+    </div>
+
+    <form method="POST" action="/connections/<%= connId %>/edit" id="connForm">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Connection Name</label>
+          <input type="text" class="form-control" name="name" value="<%= conn.name %>" required id="connName">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Host</label>
+          <input type="text" class="form-control" name="host" value="<%= conn.host %>" required id="connHost">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Port</label>
+          <input type="number" class="form-control" name="port" value="<%= conn.port %>" id="connPort">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Username</label>
+          <input type="text" class="form-control" name="user" value="<%= conn.username %>" required id="connUser">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" name="password" value="<%= conn.password %>" id="connPass">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Default Database (optional)</label>
+          <input type="text" class="form-control" name="database" value="<%= conn.database_name %>" id="connDb">
+        </div>
+        <div class="col-md-12">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" name="ssl" id="connSsl" value="on" <%= conn.ssl ? 'checked' : '' %>>
+            <label class="form-check-label" for="connSsl">Use SSL/TLS Connection</label>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Changes</button>
+        <button type="button" class="btn btn-outline-info" id="testBtn"><i class="bi bi-lightning"></i> Test Connection</button>
+        <a href="/connections" class="btn btn-secondary">Cancel</a>
+      </div>
+      <div id="testResult" class="mt-3 d-none"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+function parseConnectionString(str) {
+  str = str.trim();
+  const jdbcMatch = str.match(/^jdbc:mysql:\/\/([^:/]+):?(\d+)?\/([^?]*)(?:\?(.*))?$/);
+  if (jdbcMatch) {
+    const params = {};
+    if (jdbcMatch[4]) jdbcMatch[4].split('&').forEach(p => { const [k, v] = p.split('='); if (k && v) params[k] = decodeURIComponent(v); });
+    return { host: jdbcMatch[1], port: jdbcMatch[2] || '3306', database: jdbcMatch[3] || '', user: params.user || '', password: params.password || '', ssl: !!(params.sslMode && params.sslMode !== 'disabled') };
+  }
+  const uriMatch = str.match(/^(?:mysql:\/\/)?(?:([^:@]+)(?::([^@]*))?@)?([^:/]+):?(\d+)?\/([^?]*)(?:\?(.*))?$/);
+  if (uriMatch) {
+    const params = {};
+    if (uriMatch[6]) uriMatch[6].split('&').forEach(p => { const [k, v] = p.split('='); if (k && v) params[k] = decodeURIComponent(v); });
+    return { user: decodeURIComponent(uriMatch[1] || ''), password: decodeURIComponent(uriMatch[2] || ''), host: uriMatch[3] || '', port: uriMatch[4] || '3306', database: decodeURIComponent(uriMatch[5] || ''), ssl: !!(params.sslMode && params.sslMode !== 'disabled') };
+  }
+  return null;
+}
+
+document.getElementById('parseBtn').addEventListener('click', function() {
+  const result = parseConnectionString(document.getElementById('connString').value);
+  if (!result) { alert('Could not parse connection string.'); return; }
+  document.getElementById('connHost').value = result.host || '';
+  document.getElementById('connPort').value = result.port || '3306';
+  document.getElementById('connUser').value = result.user || '';
+  document.getElementById('connPass').value = result.password || '';
+  document.getElementById('connDb').value = result.database || '';
+  document.getElementById('connSsl').checked = !!result.ssl;
+});
+
+document.getElementById('testBtn').addEventListener('click', async function() {
+  const btn = this; btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Testing...';
+  try {
+    const resp = await fetch('/connections/test', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ host: document.getElementById('connHost').value, port: document.getElementById('connPort').value, user: document.getElementById('connUser').value, password: document.getElementById('connPass').value, database: document.getElementById('connDb').value, ssl: document.getElementById('connSsl').checked }) });
+    const data = await resp.json();
+    const div = document.getElementById('testResult'); div.className = 'mt-3 alert ' + (data.success ? 'alert-success' : 'alert-danger'); div.textContent = data.message; div.classList.remove('d-none');
+  } catch (err) { const div = document.getElementById('testResult'); div.className = 'mt-3 alert alert-danger'; div.textContent = 'Network error: ' + err.message; div.classList.remove('d-none'); }
+  finally { btn.disabled = false; btn.innerHTML = '<i class="bi bi-lightning"></i> Test Connection'; }
+});
+</script>
+
+<%- include('partials/footer') %>

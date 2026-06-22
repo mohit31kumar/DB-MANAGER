@@ -1,0 +1,141 @@
+<%- include('../partials/header') %>
+
+<div class="row">
+  <div class="col-md-3 sidebar">
+    <h6 class="text-muted mb-2"><%= db %>.<%= table %></h6>
+    <ul class="list-unstyled">
+      <li><a href="/table/<%= db %>/<%= table %>/structure" class="active"><i class="bi bi-gear"></i> Structure</a></li>
+      <li><a href="/table/<%= db %>/<%= table %>/browse"><i class="bi bi-eye"></i> Browse</a></li>
+      <li><a href="/table/<%= db %>/<%= table %>/insert"><i class="bi bi-plus-circle"></i> Insert</a></li>
+    </ul>
+    <hr>
+    <a href="/database/<%= db %>" class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-arrow-left"></i> Back to Tables</a>
+    <%- include('../partials/credit') %>
+  </div>
+  <div class="col-md-9 main-content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Structure: <code><%= db %>.<%= table %></code></h4>
+      <a href="/table/<%= db %>/<%= table %>/structure/add-column" class="btn btn-success btn-sm"><i class="bi bi-plus"></i> Add Column</a>
+    </div>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert-danger alert-dismissible fade show">
+        <%= error %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    <% } %>
+
+    <h6 class="mb-2">Columns (<%= columns.length %>)</h6>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% columns.forEach((col, i) => { %>
+            <tr>
+              <td><%= i + 1 %></td>
+              <td>
+                <strong><%= col.Field %></strong>
+                <% if (col.Key === 'PRI') { %><span class="badge bg-warning">PRI</span><% } %>
+                <% if (col.Key === 'UNI') { %><span class="badge bg-info">UNI</span><% } %>
+                <% if (col.Key === 'MUL') { %><span class="badge bg-secondary">MUL</span><% } %>
+              </td>
+              <td><code><%= col.Type %></code></td>
+              <td><%= col.Null %></td>
+              <td><%= col.Key %></td>
+              <td><%= col.Default === null ? 'NULL' : col.Default %></td>
+              <td><%= col.Extra %></td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <a href="/table/<%= db %>/<%= table %>/structure/modify-column/<%= col.Field %>" class="btn btn-outline-primary" title="Modify"><i class="bi bi-pencil"></i></a>
+                  <form method="POST" action="/table/<%= db %>/<%= table %>/structure/drop-column/<%= col.Field %>" class="d-inline" onsubmit="return confirm('Drop column `<%= col.Field %>`?')">
+                    <button type="submit" class="btn btn-outline-danger" title="Drop"><i class="bi bi-trash"></i></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (indexes.length > 0) { %>
+      <h6 class="mb-2 mt-3">Indexes (<%= indexes.length %>)</h6>
+      <div class="table-responsive">
+        <table class="table table-bordered table-sm">
+          <thead class="table-dark">
+            <tr><th>Name</th><th>Column</th><th>Unique</th><th>Cardinality</th></tr>
+          </thead>
+          <tbody>
+            <% indexes.forEach(idx => { %>
+              <tr>
+                <td><%= idx.Key_name %></td>
+                <td><%= idx.Column_name %></td>
+                <td><%= idx.Non_unique === 0 ? 'Yes' : 'No' %></td>
+                <td><%= idx.Cardinality %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+
+    <h6 class="mb-2 mt-4">Table Operations</h6>
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label">Rename Table</label>
+            <form method="POST" action="/table/<%= db %>/<%= table %>/structure/rename" class="input-group input-group-sm">
+              <input type="text" class="form-control" name="new_name" value="<%= table %>" required>
+              <button type="submit" class="btn btn-outline-primary">Rename</button>
+            </form>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Change Engine</label>
+            <form method="POST" action="/table/<%= db %>/<%= table %>/structure/change-engine" class="input-group input-group-sm">
+              <select class="form-select" name="engine">
+                <option value="InnoDB">InnoDB</option>
+                <option value="MyISAM">MyISAM</option>
+                <option value="MEMORY">MEMORY</option>
+                <option value="ARCHIVE">ARCHIVE</option>
+                <option value="CSV">CSV</option>
+              </select>
+              <button type="submit" class="btn btn-outline-primary">Apply</button>
+            </form>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Change Collation</label>
+            <form method="POST" action="/table/<%= db %>/<%= table %>/structure/change-collation" class="input-group input-group-sm">
+              <select class="form-select" name="collation">
+                <option value="utf8mb4_general_ci">utf8mb4_general_ci</option>
+                <option value="utf8mb4_unicode_ci">utf8mb4_unicode_ci</option>
+                <option value="utf8_general_ci">utf8_general_ci</option>
+                <option value="latin1_swedish_ci">latin1_swedish_ci</option>
+              </select>
+              <button type="submit" class="btn btn-outline-primary">Apply</button>
+            </form>
+          </div>
+        </div>
+        <hr>
+        <div class="d-flex gap-2">
+          <form method="POST" action="/table/<%= db %>/<%= table %>/truncate" class="d-inline" onsubmit="return confirm('TRUNCATE this table? All data will be deleted!')">
+            <button type="submit" class="btn btn-outline-warning btn-sm"><i class="bi bi-trash"></i> Truncate</button>
+          </form>
+          <form method="POST" action="/table/<%= db %>/<%= table %>/structure/drop" class="d-inline" onsubmit="return confirm('DROP this table? This cannot be undone!')">
+            <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Drop Table</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <% if (createSQL) { %>
+      <h6 class="mb-2">CREATE TABLE</h6>
+      <pre><%= createSQL %></pre>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

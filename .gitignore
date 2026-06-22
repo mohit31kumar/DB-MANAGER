@@ -1,0 +1,7 @@
+node_modules/
+.env
+users.db
+*.log
+.DS_Store
+users.db-shm
+users.db-wal

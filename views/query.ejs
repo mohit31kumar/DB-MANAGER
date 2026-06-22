@@ -1,0 +1,71 @@
+<%- include('partials/header') %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+<style>
+  .CodeMirror { height: 200px; border: 1px solid #dee2e6; border-radius: 4px; }
+</style>
+
+<div class="row">
+  <div class="col-md-3 sidebar">
+    <h6 class="text-muted mb-2">SQL Query</h6>
+    <ul class="list-unstyled">
+      <li><a href="/query" class="active"><i class="bi bi-terminal"></i> Query Editor</a></li>
+    </ul>
+    <hr>
+    <h6 class="text-muted mb-2">Databases</h6>
+    <ul class="list-unstyled">
+      <% databases.forEach(db => { %>
+        <li><a href="/database/<%= db %>"><i class="bi bi-folder"></i> <%= db %></a></li>
+      <% }) %>
+    </ul>
+    <hr>
+    <h6 class="text-muted mb-2">History</h6>
+    <ul class="list-unstyled" id="queryHistoryList"></ul>
+    <hr>
+    <a href="/" class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-arrow-left"></i> All Databases</a>
+    <%- include('partials/credit') %>
+  </div>
+  <div class="col-md-9 main-content">
+    <h4>SQL Query Editor</h4>
+
+    <div class="mb-3">
+      <label for="database" class="form-label">Use Database</label>
+      <select id="database" class="form-select form-select-sm">
+        <option value="">-- None --</option>
+        <% databases.forEach(db => { %>
+          <option value="<%= db %>"><%= db %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Query</label>
+      <textarea id="queryInput" class="form-control font-monospace"><%= query %></textarea>
+    </div>
+
+    <div class="mb-3 d-flex flex-wrap gap-2">
+      <button id="runQuery" class="btn btn-primary btn-sm"><i class="bi bi-play"></i> Run Query</button>
+      <button id="explainQuery" class="btn btn-outline-info btn-sm"><i class="bi bi-info-circle"></i> EXPLAIN</button>
+      <button id="formatQuery" class="btn btn-outline-secondary btn-sm"><i class="bi bi-code-slash"></i> Format</button>
+      <div class="dropdown">
+        <button class="btn btn-outline-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" disabled id="exportBtn">
+          <i class="bi bi-download"></i> Export
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#" data-format="csv">CSV</a></li>
+          <li><a class="dropdown-item" href="#" data-format="sql">SQL</a></li>
+          <li><a class="dropdown-item" href="#" data-format="json">JSON</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="queryMessage" class="d-none"></div>
+    <div id="queryInfo" class="text-muted mb-2"></div>
+    <div id="queryResults" class="table-responsive"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+<script src="/js/app.js"></script>
+<%- include('partials/footer') %>

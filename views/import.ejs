@@ -1,0 +1,100 @@
+<%- include('partials/header') %>
+
+<div class="row">
+  <div class="col-md-3 sidebar">
+    <h6 class="text-muted mb-2">Import</h6>
+    <ul class="list-unstyled">
+      <li><a href="/import" class="active"><i class="bi bi-upload"></i> Import</a></li>
+    </ul>
+    <hr>
+    <h6 class="text-muted mb-2">Databases</h6>
+    <ul class="list-unstyled">
+      <% databases.forEach(db => { %>
+        <li><a href="/database/<%= db %>"><i class="bi bi-folder"></i> <%= db %></a></li>
+      <% }) %>
+    </ul>
+    <hr>
+    <a href="/" class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-arrow-left"></i> All Databases</a>
+    <%- include('partials/credit') %>
+  </div>
+  <div class="col-md-9 main-content">
+    <h4>Import Data</h4>
+
+    <% if (error) { %>
+      <div class="alert alert-danger alert-dismissible fade show">
+        <%= error %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    <% } %>
+    <% if (success) { %>
+      <div class="alert alert-success alert-dismissible fade show">
+        <%= success %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    <% } %>
+
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#sql-tab">SQL File</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#csv-tab">CSV File</a>
+      </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+      <div class="tab-pane fade show active" id="sql-tab">
+        <form method="POST" action="/import/sql" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="database-sql" class="form-label">Use Database (optional)</label>
+            <select class="form-select" id="database-sql" name="database">
+              <option value="">-- Select Database --</option>
+              <% databases.forEach(db => { %>
+                <option value="<%= db %>"><%= db %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="sqlfile" class="form-label">SQL File (.sql)</label>
+            <input type="file" class="form-control" id="sqlfile" name="sqlfile" accept=".sql" required>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Import SQL</button>
+        </form>
+      </div>
+
+      <div class="tab-pane fade" id="csv-tab">
+        <form method="POST" action="/import/csv" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="database-csv" class="form-label">Database</label>
+            <select class="form-select" id="database-csv" name="database" required>
+              <option value="">-- Select Database --</option>
+              <% databases.forEach(db => { %>
+                <option value="<%= db %>"><%= db %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="table-csv" class="form-label">Table Name</label>
+            <input type="text" class="form-control" id="table-csv" name="table" required placeholder="Enter table name">
+          </div>
+          <div class="mb-3">
+            <label for="delimiter" class="form-label">Delimiter</label>
+            <select class="form-select" id="delimiter" name="delimiter">
+              <option value=",">, (comma)</option>
+              <option value=";">; (semicolon)</option>
+              <option value="\t">Tab</option>
+              <option value="|">| (pipe)</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="csvfile" class="form-label">CSV File (.csv)</label>
+            <input type="file" class="form-control" id="csvfile" name="csvfile" accept=".csv" required>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Import CSV</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

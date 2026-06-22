@@ -1,0 +1,85 @@
+<%- include('partials/header') %>
+
+<div class="row">
+  <div class="col-md-3 sidebar">
+    <h6 class="text-muted mb-2">Connections</h6>
+    <ul class="list-unstyled">
+      <li><a href="/connections" class="active"><i class="bi bi-hdd-network"></i> Manage Connections</a></li>
+      <li><a href="/connections/add"><i class="bi bi-plus-circle"></i> Add Connection</a></li>
+    </ul>
+    <hr>
+    <h6 class="text-muted mb-2">Your Connections</h6>
+    <ul class="list-unstyled">
+      <% conns.forEach(c => { %>
+        <li>
+          <a href="/connections/<%= c.id %>/activate" class="<%= c.id === activeId ? 'active' : '' %>">
+            <i class="bi bi-plug"></i> <%= c.name %>
+            <% if (c.id === activeId) { %><span class="badge bg-success">Active</span><% } %>
+          </a>
+        </li>
+      <% }) %>
+    </ul>
+    <%- include('partials/credit') %>
+  </div>
+  <div class="col-md-9 main-content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Database Connections</h4>
+      <a href="/connections/add" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle"></i> Add Connection</a>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+    <% if (typeof success !== 'undefined' && success) { %><div class="alert alert-success"><%= success %></div><% } %>
+
+    <% if (conns.length === 0) { %>
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No connections configured yet. Add your first database connection to get started.
+        <div class="mt-2">
+          <a href="/connections/add" class="btn btn-primary btn-sm">Add Connection</a>
+        </div>
+      </div>
+    <% } else { %>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr><th>Name</th><th>Host</th><th>Port</th><th>User</th><th>Database</th><th>SSL</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            <% conns.forEach(c => { %>
+              <tr>
+                <td><strong><%= c.name %></strong></td>
+                <td><%= c.host %></td>
+                <td><%= c.port %></td>
+                <td><%= c.username %></td>
+                <td><%= c.database_name || '<i>All</i>' %></td>
+                <td><%= c.ssl ? '<span class="badge bg-success">SSL</span>' : '<span class="badge bg-secondary">No</span>' %></td>
+                <td>
+                  <% if (c.id === activeId) { %>
+                    <span class="badge bg-success">Active</span>
+                  <% } else { %>
+                    <span class="badge bg-secondary">Inactive</span>
+                  <% } %>
+                </td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <% if (c.id !== activeId) { %>
+                      <form method="POST" action="/connections/<%= c.id %>/activate" class="d-inline">
+                        <button type="submit" class="btn btn-outline-success" title="Connect"><i class="bi bi-plug"></i></button>
+                      </form>
+                    <% } %>
+                    <a href="/connections/<%= c.id %>/edit" class="btn btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                    <form method="POST" action="/connections/<%= c.id %>/delete" class="d-inline" onsubmit="return confirm('Delete this connection?')">
+                      <button type="submit" class="btn btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-muted">Total: <%= conns.length %> connection(s)</p>
+    <% } %>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

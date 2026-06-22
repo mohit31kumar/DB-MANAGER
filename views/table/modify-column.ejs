@@ -1,0 +1,98 @@
+<%- include('../partials/header') %>
+
+<div class="row">
+  <div class="col-md-3 sidebar">
+    <h6 class="text-muted mb-2"><%= db %>.<%= table %></h6>
+    <ul class="list-unstyled">
+      <li><a href="/table/<%= db %>/<%= table %>/structure" class="active"><i class="bi bi-gear"></i> Structure</a></li>
+      <li><a href="/table/<%= db %>/<%= table %>/browse"><i class="bi bi-eye"></i> Browse</a></li>
+      <li><a href="/table/<%= db %>/<%= table %>/insert"><i class="bi bi-plus-circle"></i> Insert</a></li>
+    </ul>
+    <hr>
+    <a href="/database/<%= db %>" class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-arrow-left"></i> Back to Tables</a>
+    <%- include('../partials/credit') %>
+  </div>
+  <div class="col-md-9 main-content">
+    <h4>Modify Column: <code><%= db %>.<%= table %>.<%= column.Field %></code></h4>
+    <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+
+    <form method="POST" action="/table/<%= db %>/<%= table %>/structure/modify-column/<%= column.Field %>">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Column Name</label>
+          <input type="text" class="form-control" name="col_name" value="<%= column.Field %>" required>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Type</label>
+          <select class="form-select" name="col_type" id="colType" required>
+            <% const types = ['INT','BIGINT','SMALLINT','TINYINT','FLOAT','DOUBLE','DECIMAL','VARCHAR','CHAR','TEXT','LONGTEXT','MEDIUMTEXT','BLOB','DATE','DATETIME','TIMESTAMP','TIME','YEAR','BOOLEAN','ENUM','SET','JSON']; %>
+            <% types.forEach(t => { %>
+              <option value="<%= t %>" <%= column.Type.toUpperCase().startsWith(t) ? 'selected' : '' %>><%= t %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Length</label>
+          <% const typeMatch = column.Type.match(/\(([^)]+)\)/); %>
+          <input type="text" class="form-control" name="col_length" value="<%= typeMatch ? typeMatch[1] : '' %>" placeholder="e.g. 255">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Extra</label>
+          <select class="form-select" name="col_extra">
+            <option value="">None</option>
+            <option value="AUTO_INCREMENT" <%= column.Extra.includes('auto_increment') ? 'selected' : '' %>>AUTO_INCREMENT</option>
+            <option value="UNSIGNED" <%= column.Type.includes('unsigned') ? 'selected' : '' %>>UNSIGNED</option>
+            <option value="UNSIGNED ZEROFILL" <%= column.Type.includes('zerofill') ? 'selected' : '' %>>UNSIGNED ZEROFILL</option>
+            <option value="ON UPDATE CURRENT_TIMESTAMP" <%= column.Extra.includes('on update') ? 'selected' : '' %>>ON UPDATE CURRENT_TIMESTAMP</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Allow NULL</label>
+          <select class="form-select" name="col_null">
+            <option value="NO" <%= column.Null === 'NO' ? 'selected' : '' %>>NOT NULL</option>
+            <option value="YES" <%= column.Null === 'YES' ? 'selected' : '' %>>NULL</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Default Value</label>
+          <input type="text" class="form-control" name="col_default" value="<%= column.Default === null ? '' : column.Default %>" placeholder="NULL or value">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">&nbsp;</label>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" name="col_default_null" id="defaultNull" <%= column.Default === null ? 'checked' : '' %>>
+            <label class="form-check-label" for="defaultNull">Default NULL</label>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Position</label>
+          <select class="form-select" name="col_position" id="colPosition">
+            <option value="">Keep current</option>
+            <option value="first">FIRST</option>
+            <option value="after">AFTER...</option>
+          </select>
+        </div>
+        <div class="col-md-3" id="afterColGroup" style="display:none">
+          <label class="form-label">After Column</label>
+          <select class="form-select" name="col_after">
+            <% columns.filter(c => c.Field !== column.Field).forEach(col => { %>
+              <option value="<%= col.Field %>"><%= col.Field %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+      <div class="mt-4">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Changes</button>
+        <a href="/table/<%= db %>/<%= table %>/structure" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('colPosition').addEventListener('change', function() {
+  document.getElementById('afterColGroup').style.display = this.value === 'after' ? '' : 'none';
+});
+</script>
+
+<%- include('../partials/footer') %>

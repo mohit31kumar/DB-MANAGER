@@ -1,0 +1,80 @@
+<%- include('../partials/header') %>
+
+<div class="row">
+  <div class="col-md-3 sidebar">
+    <h6 class="text-muted mb-2"><%= db %>.<%= table %></h6>
+    <ul class="list-unstyled">
+      <li><a href="/table/<%= db %>/<%= table %>/structure"><i class="bi bi-gear"></i> Structure</a></li>
+      <li><a href="/table/<%= db %>/<%= table %>/browse"><i class="bi bi-eye"></i> Browse</a></li>
+      <li><a href="/table/<%= db %>/<%= table %>/insert"><i class="bi bi-plus-circle"></i> Insert</a></li>
+    </ul>
+    <hr>
+    <a href="/database/<%= db %>" class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-arrow-left"></i> Back to Tables</a>
+    <%- include('../partials/credit') %>
+  </div>
+  <div class="col-md-9 main-content">
+    <h4>Edit Row: <code><%= db %>.<%= table %></code></h4>
+
+    <% if (error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/table/<%= db %>/<%= table %>/edit/<%= encodeURIComponent(row[idColumn]) %>">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead class="table-dark">
+            <tr>
+              <th>Column</th>
+              <th>Type</th>
+              <th>Value</th>
+              <th>NULL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% columns.forEach(col => { %>
+              <tr>
+                <td>
+                  <strong><%= col.Field %></strong>
+                  <% if (col.Key === 'PRI') { %><span class="badge bg-warning">PK</span><% } %>
+                  <% if (col.Key === 'UNI') { %><span class="badge bg-info">UNI</span><% } %>
+                  <% if (col.Key === 'MUL') { %><span class="badge bg-secondary">MUL</span><% } %>
+                </td>
+                <td class="text-muted"><%= col.Type %></td>
+                <td>
+                  <% const val = row[col.Field]; %>
+                  <% if (col.Type.includes('text') || col.Type.includes('TEXT')) { %>
+                    <textarea class="form-control form-control-sm" name="col_<%= col.Field %>" rows="2"><%= val === null ? '' : val %></textarea>
+                  <% } else if (col.Type.includes('enum') || col.Type.includes('set')) { %>
+                    <select class="form-select form-select-sm" name="col_<%= col.Field %>">
+                      <option value="">-- Select --</option>
+                      <% const opts = col.Type.match(/'([^']+)'/g); if (opts) { opts.forEach(opt => { const optVal = opt.replace(/'/g, ''); %>
+                        <option value="<%= optVal %>" <%= val === optVal ? 'selected' : '' %>><%= optVal %></option>
+                      <% }); } %>
+                    </select>
+                  <% } else if (col.Type.includes('date') && !col.Type.includes('datetime')) { %>
+                    <input type="date" class="form-control form-control-sm" name="col_<%= col.Field %>" value="<%= val || '' %>">
+                  <% } else if (col.Type.includes('datetime') || col.Type.includes('timestamp')) { %>
+                    <input type="datetime-local" class="form-control form-control-sm" name="col_<%= col.Field %>" value="<%= val || '' %>">
+                  <% } else if (col.Type.includes('int') || col.Type.includes('decimal') || col.Type.includes('float') || col.Type.includes('double')) { %>
+                    <input type="number" step="any" class="form-control form-control-sm" name="col_<%= col.Field %>" value="<%= val === null ? '' : val %>">
+                  <% } else { %>
+                    <input type="text" class="form-control form-control-sm" name="col_<%= col.Field %>" value="<%= val === null ? '' : val %>">
+                  <% } %>
+                </td>
+                <td class="text-center">
+                  <% if (col.Null === 'YES') { %>
+                    <input type="checkbox" name="col_<%= col.Field %>_null" class="form-check-input" <%= val === null ? 'checked' : '' %>>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Changes</button>
+      <a href="/table/<%= db %>/<%= table %>/browse" class="btn btn-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
