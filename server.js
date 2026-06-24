@@ -96,5 +96,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`DB Manager running at http://localhost:${PORT}`);
+  console.log(`DB Manager is now live.`);
 });
