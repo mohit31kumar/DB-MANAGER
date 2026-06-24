@@ -14,7 +14,8 @@ function getPoolConfig(config) {
     connectionLimit: 10,
     queueLimit: 0,
     multipleStatements: true,
-    dateStrings: true
+    dateStrings: true,
+    connectTimeout: 10000
   };
 
   if (config.ssl === true || config.ssl === 1) {

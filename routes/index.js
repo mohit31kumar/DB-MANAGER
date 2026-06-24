@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const store = require('../store');
+const { removePool } = require('../db');
 
 router.get('/', async (req, res) => {
   if (!req.session || !req.session.user) {
@@ -35,6 +36,10 @@ router.get('/', async (req, res) => {
     res.render('dashboard', { databases, user: req.session.user, serverInfo });
   } catch (err) {
     console.error(err);
+    if (err.code === 'ETIMEDOUT' || err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
+      removePool(userId, req.connId);
+      return res.render('dashboard', { databases: [], user: req.session.user, error: 'Could not connect to database server. Connection has been removed. Please add it again.' });
+    }
     res.render('dashboard', { databases: [], user: req.session.user, error: err.message });
   }
 });

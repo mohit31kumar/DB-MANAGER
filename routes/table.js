@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
+router.use((req, res, next) => {
+  if (!req.pool) return res.redirect('/');
+  next();
+});
+
 router.get('/:db/:table/structure', async (req, res) => {
   const { db, table } = req.params;
   try {
@@ -37,7 +42,6 @@ router.get('/:db/:table/browse', async (req, res) => {
     const [rows] = await req.pool.query(query);
     const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
 
-    // Get primary key columns
     const [pkResult] = await req.pool.query(
       `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND CONSTRAINT_NAME = 'PRIMARY'`,
       [db, table]
@@ -209,8 +213,6 @@ router.post('/:db/:table/truncate', async (req, res) => {
     res.redirect(`/table/${db}/${table}/browse?error=` + encodeURIComponent(err.message));
   }
 });
-
-// --- Structure Editing ---
 
 router.get('/:db/:table/structure/add-column', async (req, res) => {
   const { db, table } = req.params;

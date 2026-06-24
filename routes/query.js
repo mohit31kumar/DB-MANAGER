@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { format } = require('sql-formatter');
 
+router.use((req, res, next) => {
+  if (!req.pool) return res.redirect('/');
+  next();
+});
+
 router.get('/', async (req, res) => {
   try {
     const [databases] = await req.pool.query('SHOW DATABASES');
@@ -88,6 +93,14 @@ router.post('/export', async (req, res) => {
     }
 
     if (exportFormat === 'sql') {
+      let tableName = 'table_name';
+      const fromMatch = sqlQuery.match(/FROM\s+`?(\w+)`?/i);
+      const intoMatch = sqlQuery.match(/INTO\s+`?(\w+)`?/i);
+      const updateMatch = sqlQuery.match(/UPDATE\s+`?(\w+)`?/i);
+      if (fromMatch) tableName = fromMatch[1];
+      else if (intoMatch) tableName = intoMatch[1];
+      else if (updateMatch) tableName = updateMatch[1];
+
       let sql = '';
       rows.forEach(row => {
         const vals = columns.map(col => {
@@ -96,10 +109,10 @@ router.post('/export', async (req, res) => {
           if (typeof val === 'number') return val;
           return "'" + String(val).replace(/'/g, "\\'") + "'";
         });
-        sql += `INSERT INTO \`table_name\` (${columns.map(c => '`' + c + '`').join(', ')}) VALUES (${vals.join(', ')});\n`;
+        sql += `INSERT INTO \`${tableName}\` (${columns.map(c => '`' + c + '`').join(', ')}) VALUES (${vals.join(', ')});\n`;
       });
       res.setHeader('Content-Type', 'text/sql');
-      res.setHeader('Content-Disposition', 'attachment; filename=query_results.sql');
+      res.setHeader('Content-Disposition', `attachment; filename=${tableName}_results.sql`);
       return res.send(sql);
     }
 
