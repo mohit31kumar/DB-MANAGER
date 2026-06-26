@@ -19,6 +19,16 @@
   <div class="col-md-9 main-content">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h4 class="mb-0">Database: <code><%= dbName %></code></h4>
+      <div class="d-flex gap-2">
+        <form method="POST" action="/database/<%= dbName %>/export" class="d-inline">
+          <input type="hidden" name="format" value="sql">
+          <button type="submit" class="btn btn-outline-primary btn-sm"><i class="bi bi-download"></i> Export SQL</button>
+        </form>
+        <form method="POST" action="/database/<%= dbName %>/export" class="d-inline">
+          <input type="hidden" name="format" value="json">
+          <button type="submit" class="btn btn-outline-warning btn-sm"><i class="bi bi-download"></i> Export JSON</button>
+        </form>
+      </div>
     </div>
 
     <% if (typeof error !== 'undefined' && error) { %>

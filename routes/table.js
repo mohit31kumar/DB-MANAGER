@@ -333,4 +333,77 @@ router.post('/:db/:table/structure/change-collation', async (req, res) => {
   }
 });
 
+// --- Export ---
+
+router.get('/:db/:table/export', async (req, res) => {
+  const { db, table } = req.params;
+  res.render('table/export', { db, table, user: req.session.user, error: null });
+});
+
+router.post('/:db/:table/export', async (req, res) => {
+  const { db, table } = req.params;
+  const { format } = req.body;
+
+  try {
+    if (format === 'sql') {
+      const [createTable] = await req.pool.query(`SHOW CREATE TABLE \`${db}\`.\`${table}\``);
+      const createSQL = createTable[0]['Create Table'] || createTable[0]['Create View'] || '';
+      const [rows] = await req.pool.query(`SELECT * FROM \`${db}\`.\`${table}\``);
+      const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
+
+      let sql = `-- Database: ${db}\n-- Table: ${table}\n\n`;
+      sql += `DROP TABLE IF EXISTS \`${table}\`;\n`;
+      sql += createSQL + ';\n\n';
+
+      if (rows.length > 0) {
+        rows.forEach(row => {
+          const vals = columns.map(col => {
+            const val = row[col];
+            if (val === null) return 'NULL';
+            if (typeof val === 'number') return val;
+            return "'" + String(val).replace(/'/g, "\\'") + "'";
+          });
+          sql += `INSERT INTO \`${table}\` (${columns.map(c => '`' + c + '`').join(', ')}) VALUES (${vals.join(', ')});\n`;
+        });
+      }
+
+      res.setHeader('Content-Type', 'text/sql');
+      res.setHeader('Content-Disposition', `attachment; filename=${table}.sql`);
+      return res.send(sql);
+    }
+
+    if (format === 'csv') {
+      const [rows] = await req.pool.query(`SELECT * FROM \`${db}\`.\`${table}\``);
+      if (rows.length === 0) return res.status(404).send('Table is empty.');
+      const columns = Object.keys(rows[0]);
+
+      let csv = columns.join(',') + '\n';
+      rows.forEach(row => {
+        csv += columns.map(col => {
+          const val = row[col];
+          if (val === null) return '';
+          const str = String(val);
+          return str.includes(',') || str.includes('"') || str.includes('\n')
+            ? '"' + str.replace(/"/g, '""') + '"' : str;
+        }).join(',') + '\n';
+      });
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=${table}.csv`);
+      return res.send(csv);
+    }
+
+    if (format === 'json') {
+      const [rows] = await req.pool.query(`SELECT * FROM \`${db}\`.\`${table}\``);
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename=${table}.json`);
+      return res.send(JSON.stringify(rows, null, 2));
+    }
+
+    res.status(400).send('Unsupported format.');
+  } catch (err) {
+    res.redirect(`/table/${db}/${table}/export?error=` + encodeURIComponent(err.message));
+  }
+});
+
 module.exports = router;

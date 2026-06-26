@@ -1,0 +1,70 @@
+<%- include('../partials/header') %>
+
+<div class="row">
+  <div class="col-md-3 sidebar">
+    <h6 class="text-muted mb-2"><%= db %>.<%= table %></h6>
+    <ul class="list-unstyled">
+      <li><a href="/table/<%= db %>/<%= table %>/structure"><i class="bi bi-gear"></i> Structure</a></li>
+      <li><a href="/table/<%= db %>/<%= table %>/browse"><i class="bi bi-eye"></i> Browse</a></li>
+      <li><a href="/table/<%= db %>/<%= table %>/insert"><i class="bi bi-plus-circle"></i> Insert</a></li>
+      <li><a href="/table/<%= db %>/<%= table %>/export" class="active"><i class="bi bi-download"></i> Export</a></li>
+    </ul>
+    <hr>
+    <a href="/database/<%= db %>" class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-arrow-left"></i> Back to Tables</a>
+    <%- include('../partials/credit') %>
+  </div>
+  <div class="col-md-9 main-content">
+    <h4>Export: <code><%= db %>.<%= table %></code></h4>
+    <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+
+    <div class="row g-3">
+      <div class="col-md-4">
+        <form method="POST" action="/table/<%= db %>/<%= table %>/export">
+          <input type="hidden" name="format" value="sql">
+          <div class="card h-100 border-primary">
+            <div class="card-body text-center">
+              <i class="bi bi-file-earmark-code text-primary" style="font-size: 32px;"></i>
+              <h6 class="mt-2">SQL Dump</h6>
+              <small class="text-muted">Structure + Data</small>
+              <div class="mt-3">
+                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-download"></i> Export SQL</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-4">
+        <form method="POST" action="/table/<%= db %>/<%= table %>/export">
+          <input type="hidden" name="format" value="csv">
+          <div class="card h-100 border-success">
+            <div class="card-body text-center">
+              <i class="bi bi-filetype-csv text-success" style="font-size: 32px;"></i>
+              <h6 class="mt-2">CSV</h6>
+              <small class="text-muted">Data only</small>
+              <div class="mt-3">
+                <button type="submit" class="btn btn-success btn-sm w-100"><i class="bi bi-download"></i> Export CSV</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-4">
+        <form method="POST" action="/table/<%= db %>/<%= table %>/export">
+          <input type="hidden" name="format" value="json">
+          <div class="card h-100 border-warning">
+            <div class="card-body text-center">
+              <i class="bi bi-filetype-json text-warning" style="font-size: 32px;"></i>
+              <h6 class="mt-2">JSON</h6>
+              <small class="text-muted">Data only</small>
+              <div class="mt-3">
+                <button type="submit" class="btn btn-warning btn-sm w-100"><i class="bi bi-download"></i> Export JSON</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
