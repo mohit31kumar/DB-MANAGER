@@ -43,8 +43,12 @@
       <textarea id="queryInput" class="form-control font-monospace"><%= query %></textarea>
     </div>
 
-    <div class="mb-3 d-flex flex-wrap gap-2">
+    <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
       <button id="runQuery" class="btn btn-primary btn-sm"><i class="bi bi-play"></i> Run Query</button>
+      <div class="form-check ms-2">
+        <input class="form-check-input" type="checkbox" id="disableFK">
+        <label class="form-check-label" for="disableFK" title="Wraps query with SET FOREIGN_KEY_CHECKS = 0">Disable FK Checks</label>
+      </div>
       <button id="explainQuery" class="btn btn-outline-info btn-sm"><i class="bi bi-info-circle"></i> EXPLAIN</button>
       <button id="formatQuery" class="btn btn-outline-secondary btn-sm"><i class="bi bi-code-slash"></i> Format</button>
       <div class="dropdown">

@@ -41,8 +41,13 @@ router.post('/sql', upload.single('sqlfile'), async (req, res) => {
     }
 
     const database = req.body.database;
+    const disableFK = req.body.disableFK === '1';
     if (database) {
       await req.pool.query(`USE \`${database}\``);
+    }
+
+    if (disableFK) {
+      await req.pool.query('SET FOREIGN_KEY_CHECKS = 0');
     }
 
     const sql = req.file.buffer.toString('utf8');
@@ -60,6 +65,10 @@ router.post('/sql', upload.single('sqlfile'), async (req, res) => {
       }
     }
 
+    if (disableFK) {
+      await req.pool.query('SET FOREIGN_KEY_CHECKS = 1');
+    }
+
     const errorMsg = errors.length > 0
       ? `${executed} statement(s) executed. ${errors.length} error(s): ${errors.map(e => e.error).join('; ')}`
       : null;
@@ -67,6 +76,7 @@ router.post('/sql', upload.single('sqlfile'), async (req, res) => {
 
     res.render('import', { user: req.session.user, databases: dbList, error: errorMsg, success: successMsg });
   } catch (err) {
+    await req.pool.query('SET FOREIGN_KEY_CHECKS = 1').catch(() => {});
     const [databases] = await req.pool.query('SHOW DATABASES').catch(() => [[]]);
     const dbList = databases.map(r => Object.values(r)[0]);
     res.render('import', { user: req.session.user, databases: dbList, error: err.message, success: null });
@@ -84,15 +94,21 @@ router.post('/csv', upload.single('csvfile'), async (req, res) => {
 
     const database = req.body.database;
     const table = req.body.table;
+    const disableFK = req.body.disableFK === '1';
     if (!database || !table) {
       return res.render('import', { user: req.session.user, databases: dbList, error: 'Database and table are required.', success: null });
     }
 
     await req.pool.query(`USE \`${database}\``);
 
+    if (disableFK) {
+      await req.pool.query('SET FOREIGN_KEY_CHECKS = 0');
+    }
+
     const csv = req.file.buffer.toString('utf8');
     const lines = csv.split('\n').filter(l => l.trim().length > 0);
     if (lines.length < 2) {
+      if (disableFK) await req.pool.query('SET FOREIGN_KEY_CHECKS = 1');
       return res.render('import', { user: req.session.user, databases: dbList, error: 'CSV must have a header row and at least one data row.', success: null });
     }
 
@@ -115,6 +131,10 @@ router.post('/csv', upload.single('csvfile'), async (req, res) => {
       }
     }
 
+    if (disableFK) {
+      await req.pool.query('SET FOREIGN_KEY_CHECKS = 1');
+    }
+
     const errorMsg = errors.length > 0
       ? `${inserted} row(s) inserted. ${errors.length} error(s).`
       : null;
@@ -122,6 +142,7 @@ router.post('/csv', upload.single('csvfile'), async (req, res) => {
 
     res.render('import', { user: req.session.user, databases: dbList, error: errorMsg, success: successMsg });
   } catch (err) {
+    await req.pool.query('SET FOREIGN_KEY_CHECKS = 1').catch(() => {});
     const [databases] = await req.pool.query('SHOW DATABASES').catch(() => [[]]);
     const dbList = databases.map(r => Object.values(r)[0]);
     res.render('import', { user: req.session.user, databases: dbList, error: err.message, success: null });

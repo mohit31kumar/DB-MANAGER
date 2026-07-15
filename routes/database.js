@@ -43,7 +43,9 @@ router.post('/:name/drop', async (req, res) => {
 router.post('/:name/export', async (req, res) => {
   if (!req.pool) return res.redirect('/');
   const dbName = req.params.name;
-  const { format } = req.body;
+  const { format, scope } = req.body;
+  const schemaOnly = scope === 'schema';
+  const dataOnly = scope === 'data';
 
   try {
     const [tables] = await req.pool.query(`SHOW TABLES FROM \`${dbName}\``);
@@ -51,29 +53,37 @@ router.post('/:name/export', async (req, res) => {
 
     if (format === 'sql') {
       let sql = `-- Database: ${dbName}\n-- Export: ${new Date().toISOString()}\n\n`;
-      sql += `CREATE DATABASE IF NOT EXISTS \`${dbName}\`;\n`;
-      sql += `USE \`${dbName}\`;\n\n`;
+
+      if (!dataOnly) {
+        sql += `CREATE DATABASE IF NOT EXISTS \`${dbName}\`;\n`;
+        sql += `USE \`${dbName}\`;\n\n`;
+      }
 
       for (const table of tableNames) {
-        const [createTable] = await req.pool.query(`SHOW CREATE TABLE \`${dbName}\`.\`${table}\``);
-        const createSQL = createTable[0]['Create Table'] || '';
-        sql += `DROP TABLE IF EXISTS \`${table}\`;\n`;
-        sql += createSQL + ';\n\n';
-
-        const [rows] = await req.pool.query(`SELECT * FROM \`${dbName}\`.\`${table}\``);
-        const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
-        if (rows.length > 0) {
-          rows.forEach(row => {
-            const vals = columns.map(col => {
-              const val = row[col];
-              if (val === null) return 'NULL';
-              if (typeof val === 'number') return val;
-              return "'" + String(val).replace(/'/g, "\\'") + "'";
-            });
-            sql += `INSERT INTO \`${table}\` (${columns.map(c => '`' + c + '`').join(', ')}) VALUES (${vals.join(', ')});\n`;
-          });
-          sql += '\n';
+        if (!dataOnly) {
+          const [createTable] = await req.pool.query(`SHOW CREATE TABLE \`${dbName}\`.\`${table}\``);
+          const createSQL = createTable[0]['Create Table'] || '';
+          sql += `DROP TABLE IF EXISTS \`${table}\`;\n`;
+          sql += createSQL + ';\n';
         }
+
+        if (!schemaOnly) {
+          const [rows] = await req.pool.query(`SELECT * FROM \`${dbName}\`.\`${table}\``);
+          const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
+          if (rows.length > 0) {
+            sql += '\n';
+            rows.forEach(row => {
+              const vals = columns.map(col => {
+                const val = row[col];
+                if (val === null) return 'NULL';
+                if (typeof val === 'number') return val;
+                return "'" + String(val).replace(/'/g, "\\'") + "'";
+              });
+              sql += `INSERT INTO \`${table}\` (${columns.map(c => '`' + c + '`').join(', ')}) VALUES (${vals.join(', ')});\n`;
+            });
+          }
+        }
+        sql += '\n';
       }
 
       res.setHeader('Content-Type', 'text/sql');
@@ -84,8 +94,13 @@ router.post('/:name/export', async (req, res) => {
     if (format === 'json') {
       const dump = {};
       for (const table of tableNames) {
-        const [rows] = await req.pool.query(`SELECT * FROM \`${dbName}\`.\`${table}\``);
-        dump[table] = rows;
+        if (schemaOnly) {
+          const [columns] = await req.pool.query(`SHOW COLUMNS FROM \`${dbName}\`.\`${table}\``);
+          dump[table] = { columns };
+        } else {
+          const [rows] = await req.pool.query(`SELECT * FROM \`${dbName}\`.\`${table}\``);
+          dump[table] = rows;
+        }
       }
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Content-Disposition', `attachment; filename=${dbName}.json`);

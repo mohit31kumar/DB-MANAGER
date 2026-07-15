@@ -342,29 +342,36 @@ router.get('/:db/:table/export', async (req, res) => {
 
 router.post('/:db/:table/export', async (req, res) => {
   const { db, table } = req.params;
-  const { format } = req.body;
+  const { format, scope } = req.body;
+  const schemaOnly = scope === 'schema';
+  const dataOnly = scope === 'data';
 
   try {
     if (format === 'sql') {
-      const [createTable] = await req.pool.query(`SHOW CREATE TABLE \`${db}\`.\`${table}\``);
-      const createSQL = createTable[0]['Create Table'] || createTable[0]['Create View'] || '';
-      const [rows] = await req.pool.query(`SELECT * FROM \`${db}\`.\`${table}\``);
-      const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
-
       let sql = `-- Database: ${db}\n-- Table: ${table}\n\n`;
-      sql += `DROP TABLE IF EXISTS \`${table}\`;\n`;
-      sql += createSQL + ';\n\n';
 
-      if (rows.length > 0) {
-        rows.forEach(row => {
-          const vals = columns.map(col => {
-            const val = row[col];
-            if (val === null) return 'NULL';
-            if (typeof val === 'number') return val;
-            return "'" + String(val).replace(/'/g, "\\'") + "'";
+      if (!dataOnly) {
+        const [createTable] = await req.pool.query(`SHOW CREATE TABLE \`${db}\`.\`${table}\``);
+        const createSQL = createTable[0]['Create Table'] || createTable[0]['Create View'] || '';
+        sql += `DROP TABLE IF EXISTS \`${table}\`;\n`;
+        sql += createSQL + ';\n';
+      }
+
+      if (!schemaOnly) {
+        const [rows] = await req.pool.query(`SELECT * FROM \`${db}\`.\`${table}\``);
+        const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
+        if (rows.length > 0) {
+          sql += '\n';
+          rows.forEach(row => {
+            const vals = columns.map(col => {
+              const val = row[col];
+              if (val === null) return 'NULL';
+              if (typeof val === 'number') return val;
+              return "'" + String(val).replace(/'/g, "\\'") + "'";
+            });
+            sql += `INSERT INTO \`${table}\` (${columns.map(c => '`' + c + '`').join(', ')}) VALUES (${vals.join(', ')});\n`;
           });
-          sql += `INSERT INTO \`${table}\` (${columns.map(c => '`' + c + '`').join(', ')}) VALUES (${vals.join(', ')});\n`;
-        });
+        }
       }
 
       res.setHeader('Content-Type', 'text/sql');
@@ -373,20 +380,23 @@ router.post('/:db/:table/export', async (req, res) => {
     }
 
     if (format === 'csv') {
-      const [rows] = await req.pool.query(`SELECT * FROM \`${db}\`.\`${table}\``);
-      if (rows.length === 0) return res.status(404).send('Table is empty.');
-      const columns = Object.keys(rows[0]);
+      const [columns] = await req.pool.query(`SHOW COLUMNS FROM \`${db}\`.\`${table}\``);
+      const colNames = columns.map(c => c.Field);
 
-      let csv = columns.join(',') + '\n';
-      rows.forEach(row => {
-        csv += columns.map(col => {
-          const val = row[col];
-          if (val === null) return '';
-          const str = String(val);
-          return str.includes(',') || str.includes('"') || str.includes('\n')
-            ? '"' + str.replace(/"/g, '""') + '"' : str;
-        }).join(',') + '\n';
-      });
+      let csv = colNames.join(',') + '\n';
+
+      if (!schemaOnly) {
+        const [rows] = await req.pool.query(`SELECT * FROM \`${db}\`.\`${table}\``);
+        rows.forEach(row => {
+          csv += colNames.map(col => {
+            const val = row[col];
+            if (val === null) return '';
+            const str = String(val);
+            return str.includes(',') || str.includes('"') || str.includes('\n')
+              ? '"' + str.replace(/"/g, '""') + '"' : str;
+          }).join(',') + '\n';
+        });
+      }
 
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', `attachment; filename=${table}.csv`);
@@ -394,6 +404,12 @@ router.post('/:db/:table/export', async (req, res) => {
     }
 
     if (format === 'json') {
+      if (schemaOnly) {
+        const [columns] = await req.pool.query(`SHOW COLUMNS FROM \`${db}\`.\`${table}\``);
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename=${table}.json`);
+        return res.send(JSON.stringify({ table, columns }, null, 2));
+      }
       const [rows] = await req.pool.query(`SELECT * FROM \`${db}\`.\`${table}\``);
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Content-Disposition', `attachment; filename=${table}.json`);

@@ -58,6 +58,12 @@
             <label for="sqlfile" class="form-label">SQL File (.sql)</label>
             <input type="file" class="form-control" id="sqlfile" name="sqlfile" accept=".sql" required>
           </div>
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="disableFK-sql" name="disableFK" value="1">
+              <label class="form-check-label" for="disableFK-sql">Disable Foreign Key Checks during import</label>
+            </div>
+          </div>
           <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Import SQL</button>
         </form>
       </div>
@@ -89,6 +95,12 @@
           <div class="mb-3">
             <label for="csvfile" class="form-label">CSV File (.csv)</label>
             <input type="file" class="form-control" id="csvfile" name="csvfile" accept=".csv" required>
+          </div>
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="disableFK-csv" name="disableFK" value="1">
+              <label class="form-check-label" for="disableFK-csv">Disable Foreign Key Checks during import</label>
+            </div>
           </div>
           <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Import CSV</button>
         </form>

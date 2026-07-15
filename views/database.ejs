@@ -19,14 +19,28 @@
   <div class="col-md-9 main-content">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h4 class="mb-0">Database: <code><%= dbName %></code></h4>
-      <div class="d-flex gap-2">
-        <form method="POST" action="/database/<%= dbName %>/export" class="d-inline">
+      <div class="d-flex align-items-center gap-3">
+        <div class="d-flex gap-1">
+          <div class="form-check form-check-inline mb-0">
+            <input class="form-check-input" type="radio" name="scope" id="dbScopeAll" value="all" checked>
+            <label class="form-check-label" for="dbScopeAll">Structure + Data</label>
+          </div>
+          <div class="form-check form-check-inline mb-0">
+            <input class="form-check-input" type="radio" name="scope" id="dbScopeSchema" value="schema">
+            <label class="form-check-label" for="dbScopeSchema">Structure Only</label>
+          </div>
+          <div class="form-check form-check-inline mb-0">
+            <input class="form-check-input" type="radio" name="scope" id="dbScopeData" value="data">
+            <label class="form-check-label" for="dbScopeData">Data Only</label>
+          </div>
+        </div>
+        <form method="POST" action="/database/<%= dbName %>/export" class="d-inline db-export-form">
           <input type="hidden" name="format" value="sql">
-          <button type="submit" class="btn btn-outline-primary btn-sm"><i class="bi bi-download"></i> Export SQL</button>
+          <button type="submit" class="btn btn-outline-primary btn-sm db-export-btn"><i class="bi bi-download"></i> Export SQL</button>
         </form>
-        <form method="POST" action="/database/<%= dbName %>/export" class="d-inline">
+        <form method="POST" action="/database/<%= dbName %>/export" class="d-inline db-export-form">
           <input type="hidden" name="format" value="json">
-          <button type="submit" class="btn btn-outline-warning btn-sm"><i class="bi bi-download"></i> Export JSON</button>
+          <button type="submit" class="btn btn-outline-warning btn-sm db-export-btn"><i class="bi bi-download"></i> Export JSON</button>
         </form>
       </div>
     </div>
@@ -61,4 +75,18 @@
   </div>
 </div>
 
+<script>
+document.querySelectorAll('.db-export-btn').forEach(btn => {
+  btn.closest('form').addEventListener('submit', function() {
+    let input = this.querySelector('input[name="scope"]');
+    if (!input) {
+      input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'scope';
+      this.appendChild(input);
+    }
+    input.value = document.querySelector('input[name="scope"]:checked').value;
+  });
+});
+</script>
 <%- include('partials/footer') %>

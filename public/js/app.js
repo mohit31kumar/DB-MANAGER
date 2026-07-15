@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const resp = await fetch('/query/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, database: dbSelect.value })
+        body: JSON.stringify({ query, database: dbSelect.value, disableFK: document.getElementById('disableFK')?.checked })
       });
       const data = await resp.json();
 

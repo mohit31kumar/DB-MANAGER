@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/execute', async (req, res) => {
-  const { query: sqlQuery, database } = req.body;
+  const { query: sqlQuery, database, disableFK } = req.body;
   if (!sqlQuery || !sqlQuery.trim()) {
     return res.json({ error: 'Query cannot be empty.', results: null });
   }
@@ -29,7 +29,14 @@ router.post('/execute', async (req, res) => {
     }
 
     const startTime = Date.now();
-    const [rows, fields] = await req.pool.query(sqlQuery);
+    let queryToRun = sqlQuery;
+    if (disableFK) {
+      await req.pool.query('SET FOREIGN_KEY_CHECKS = 0');
+    }
+    const [rows, fields] = await req.pool.query(queryToRun);
+    if (disableFK) {
+      await req.pool.query('SET FOREIGN_KEY_CHECKS = 1');
+    }
     const elapsed = Date.now() - startTime;
 
     if (Array.isArray(rows)) {
@@ -39,6 +46,9 @@ router.post('/execute', async (req, res) => {
       res.json({ results: { columns: [], rows: [], affectedRows: rows.affectedRows, elapsed, message: `Query OK. ${rows.affectedRows} row(s) affected.` }, error: null });
     }
   } catch (err) {
+    if (disableFK) {
+      await req.pool.query('SET FOREIGN_KEY_CHECKS = 1').catch(() => {});
+    }
     res.json({ error: err.message, results: null });
   }
 });

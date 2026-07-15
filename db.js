@@ -44,7 +44,11 @@ async function tryConnect(config, useSSL) {
 
 function getPool(userId, connId) {
   const key = `${userId}:${connId}`;
-  if (pools[key]) return pools[key];
+  if (pools[key] && !pools[key]._closed) return pools[key];
+
+  if (pools[key]) {
+    delete pools[key];
+  }
 
   const conn = store.getConnectionById(userId, connId);
   if (!conn) return null;

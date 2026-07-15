@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const store = require('../store');
-const { removePool } = require('../db');
+const { removePool, getPool } = require('../db');
 
 router.get('/', async (req, res) => {
   if (!req.session || !req.session.user) {
@@ -35,11 +35,25 @@ router.get('/', async (req, res) => {
 
     res.render('dashboard', { databases, user: req.session.user, serverInfo });
   } catch (err) {
-    console.error(err);
+    if (err.message === 'Pool is closed.') {
+      removePool(userId, req.connId);
+      req.pool = getPool(userId, req.connId);
+      if (req.pool) {
+        try {
+          const [rows] = await req.pool.query('SHOW DATABASES');
+          const databases = rows.map(r => Object.values(r)[0]);
+          return res.render('dashboard', { databases, user: req.session.user, serverInfo: null });
+        } catch (retryErr) {
+          console.error(retryErr);
+        }
+      }
+      return res.render('dashboard', { databases: [], user: req.session.user, error: 'Connection pool was refreshed. Please try again.' });
+    }
     if (err.code === 'ETIMEDOUT' || err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
       removePool(userId, req.connId);
       return res.render('dashboard', { databases: [], user: req.session.user, error: 'Could not connect to database server. Connection has been removed. Please add it again.' });
     }
+    console.error(err);
     res.render('dashboard', { databases: [], user: req.session.user, error: err.message });
   }
 });
