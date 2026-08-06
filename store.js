@@ -8,6 +8,7 @@ const INTERNAL_DB_PORT = parseInt(process.env.INTERNAL_DB_PORT || '3306', 10);
 const INTERNAL_DB_USER = process.env.INTERNAL_DB_USER || 'root';
 const INTERNAL_DB_PASSWORD = process.env.INTERNAL_DB_PASSWORD || '';
 const INTERNAL_DB_NAME = process.env.INTERNAL_DB_NAME || 'db_manager';
+const INTERNAL_DB_SSL = process.env.INTERNAL_DB_SSL === 'true' || process.env.INTERNAL_DB_SSL === 1;
 
 const pool = mysql.createPool({
   host: INTERNAL_DB_HOST,
@@ -19,7 +20,8 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   dateStrings: true,
-  connectTimeout: 10000
+  connectTimeout: 10000,
+  ssl: INTERNAL_DB_SSL ? { rejectUnauthorized: false } : undefined
 });
 
 const USERS_DB_PATH = path.join(__dirname, 'users.db');

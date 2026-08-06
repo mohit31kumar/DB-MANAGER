@@ -111,6 +111,8 @@ INTERNAL_DB_PORT=3306
 INTERNAL_DB_USER=root
 INTERNAL_DB_PASSWORD=
 INTERNAL_DB_NAME=db_manager
+# Set INTERNAL_DB_SSL=true if your MySQL server requires SSL (e.g., TiDB Cloud, AWS RDS)
+INTERNAL_DB_SSL=false
 ```
 
 ## Project Structure
