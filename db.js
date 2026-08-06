@@ -42,7 +42,7 @@ async function tryConnect(config, useSSL) {
   await conn.end();
 }
 
-function getPool(userId, connId) {
+async function getPool(userId, connId) {
   const key = `${userId}:${connId}`;
   if (pools[key] && !pools[key]._closed) return pools[key];
 
@@ -50,7 +50,7 @@ function getPool(userId, connId) {
     delete pools[key];
   }
 
-  const conn = store.getConnectionById(userId, connId);
+  const conn = await store.getConnectionById(userId, connId);
   if (!conn) return null;
 
   const pool = mysql.createPool(getPoolConfig(conn));

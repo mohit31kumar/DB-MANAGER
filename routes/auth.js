@@ -15,7 +15,7 @@ router.post('/login', async (req, res) => {
     return res.render('login', { error: 'Username and password are required.', username });
   }
 
-  const user = store.getUser(username);
+  const user = await store.getUser(username);
   if (!user || !store.verifyPassword(password, user.password_hash)) {
     return res.render('login', { error: 'Invalid username or password.', username });
   }
@@ -28,13 +28,15 @@ router.get('/register', (req, res) => {
   if (req.session && req.session.user) {
     return res.redirect('/');
   }
-  const hasUsers = store.getUserCount() > 0;
-  res.render('register', { error: null, username: '', hasUsers });
+  store.getUserCount().then(count => {
+    const hasUsers = count > 0;
+    res.render('register', { error: null, username: '', hasUsers });
+  });
 });
 
 router.post('/register', async (req, res) => {
   const { username, password, confirm_password } = req.body;
-  const hasUsers = store.getUserCount() > 0;
+  const hasUsers = (await store.getUserCount()) > 0;
 
   if (!username || !password) {
     return res.render('register', { error: 'All fields are required.', username, hasUsers });
@@ -56,14 +58,14 @@ router.post('/register', async (req, res) => {
     return res.render('register', { error: 'Passwords do not match.', username, hasUsers });
   }
 
-  const existing = store.getUser(username);
+  const existing = await store.getUser(username);
   if (existing) {
     return res.render('register', { error: 'Username already taken.', username, hasUsers });
   }
 
   try {
-    store.createUser(username, password);
-    const user = store.getUser(username);
+    await store.createUser(username, password);
+    const user = await store.getUser(username);
     req.session.user = { id: user.id, username: user.username };
     return res.redirect('/connections/add?welcome=1');
   } catch (err) {

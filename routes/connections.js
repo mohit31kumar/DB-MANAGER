@@ -10,8 +10,8 @@ function requireAuth(req, res, next) {
 
 router.use(requireAuth);
 
-router.get('/', (req, res) => {
-  const conns = store.getUserConnections(req.session.user.id);
+router.get('/', async (req, res) => {
+  const conns = await store.getUserConnections(req.session.user.id);
   const activeId = req.session.connId || null;
   res.render('connections', { conns, activeId, user: req.session.user, error: null, success: null });
 });
@@ -21,13 +21,13 @@ router.get('/add', (req, res) => {
   res.render('add-connection', { user: req.session.user, error: null, welcome });
 });
 
-router.post('/add', (req, res) => {
+router.post('/add', async (req, res) => {
   const { name, host, port, user: dbUser, password, database, ssl } = req.body;
   if (!name || !host || !dbUser) {
     return res.render('add-connection', { user: req.session.user, error: 'Name, host, and username are required.', welcome: false });
   }
   const userId = req.session.user.id;
-  const connId = store.addConnection(userId, {
+  const connId = await store.addConnection(userId, {
     name, host, port: parseInt(port) || 3306, user: dbUser, password, database: database || '', ssl: ssl === 'on'
   });
   if (!req.session.connId) {
@@ -36,41 +36,41 @@ router.post('/add', (req, res) => {
   res.redirect('/connections');
 });
 
-router.get('/:id/edit', (req, res) => {
-  const conn = store.getConnectionById(req.session.user.id, parseInt(req.params.id));
+router.get('/:id/edit', async (req, res) => {
+  const conn = await store.getConnectionById(req.session.user.id, parseInt(req.params.id));
   if (!conn) return res.redirect('/connections');
   res.render('edit-connection', { connId: conn.id, conn, user: req.session.user, error: null });
 });
 
-router.post('/:id/edit', (req, res) => {
+router.post('/:id/edit', async (req, res) => {
   const connId = parseInt(req.params.id);
   const { name, host, port, user: dbUser, password, database, ssl } = req.body;
   const userId = req.session.user.id;
-  const existing = store.getConnectionById(userId, connId);
+  const existing = await store.getConnectionById(userId, connId);
   if (!existing) return res.redirect('/connections');
-  store.updateConnection(userId, connId, {
+  await store.updateConnection(userId, connId, {
     name, host, port: parseInt(port) || 3306, user: dbUser, password, database: database || '', ssl: ssl === 'on'
   });
   removePool(userId, connId);
   res.redirect('/connections');
 });
 
-router.post('/:id/delete', (req, res) => {
+router.post('/:id/delete', async (req, res) => {
   const connId = parseInt(req.params.id);
   const userId = req.session.user.id;
   removePool(userId, connId);
-  store.deleteConnection(userId, connId);
+  await store.deleteConnection(userId, connId);
   if (req.session.connId === connId) {
-    const remaining = store.getUserConnections(userId);
+    const remaining = await store.getUserConnections(userId);
     req.session.connId = remaining.length > 0 ? remaining[0].id : null;
   }
   res.redirect('/connections');
 });
 
-router.post('/:id/activate', (req, res) => {
+router.post('/:id/activate', async (req, res) => {
   const connId = parseInt(req.params.id);
   const userId = req.session.user.id;
-  const conn = store.getConnectionById(userId, connId);
+  const conn = await store.getConnectionById(userId, connId);
   if (!conn) return res.redirect('/connections');
   req.session.connId = connId;
   res.redirect('/');

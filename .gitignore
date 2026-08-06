@@ -5,3 +5,4 @@ users.db
 .DS_Store
 users.db-shm
 users.db-wal
+.kilo

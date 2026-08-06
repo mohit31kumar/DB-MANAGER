@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
   }
 
   const userId = req.session.user.id;
-  const userConns = store.getUserConnections(userId);
+  const userConns = await store.getUserConnections(userId);
 
   if (userConns.length === 0) {
     return res.redirect('/connections/add?welcome=1');
@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
   } catch (err) {
     if (err.message === 'Pool is closed.') {
       removePool(userId, req.connId);
-      req.pool = getPool(userId, req.connId);
+      req.pool = await getPool(userId, req.connId);
       if (req.pool) {
         try {
           const [rows] = await req.pool.query('SHOW DATABASES');

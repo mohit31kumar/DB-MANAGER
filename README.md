@@ -6,7 +6,6 @@ A powerful, web-based database management tool built with Node.js — a modern a
 ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
 
 ## Features
 
@@ -19,7 +18,7 @@ A powerful, web-based database management tool built with Node.js — a modern a
 
 ### User Management
 - User registration and login system
-- Per-user connection storage (SQLite)
+- Per-user connection storage (MySQL)
 - Password hashing with bcrypt
 - Session-based authentication
 
@@ -84,7 +83,7 @@ npm install
 
 # Configure environment
 cp .env.example .env
-# Edit .env with your settings (only SESSION_SECRET and APP_PORT needed)
+# Edit .env with your settings (SESSION_SECRET, APP_PORT, and internal MySQL credentials)
 
 # Start the server
 npm start
@@ -105,6 +104,13 @@ Edit `.env` file:
 ```env
 SESSION_SECRET=your-secret-key-here
 APP_PORT=3000
+
+# Internal MySQL database for app data
+INTERNAL_DB_HOST=localhost
+INTERNAL_DB_PORT=3306
+INTERNAL_DB_USER=root
+INTERNAL_DB_PASSWORD=
+INTERNAL_DB_NAME=db_manager
 ```
 
 ## Project Structure
@@ -112,9 +118,8 @@ APP_PORT=3000
 ```
 db-manager/
 ├── server.js              # Express app entry point
-├── db.js                  # MySQL connection pool manager
-├── store.js               # SQLite store (users, connections)
-├── users.db               # SQLite database (auto-created)
+├── db.js                  # MySQL connection pool manager for user connections
+├── store.js               # MySQL store (users, connections, saved queries)
 ├── routes/
 │   ├── auth.js            # Login/register/logout
 │   ├── connections.js     # Connection management
@@ -135,7 +140,7 @@ db-manager/
 |-----------|------------|
 | Backend | Node.js + Express |
 | Database Driver | mysql2 (with promises) |
-| User Storage | SQLite (better-sqlite3) |
+| User Storage | MySQL |
 | Templating | EJS |
 | Frontend | Bootstrap 5 + CodeMirror |
 | Authentication | bcrypt + express-session |

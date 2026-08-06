@@ -3,18 +3,28 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const store = require('./store');
-const { getPool } = require('./db');
 
-const authRoutes = require('./routes/auth');
-const connectionsRoutes = require('./routes/connections');
-const indexRoutes = require('./routes/index');
-const databaseRoutes = require('./routes/database');
-const tableRoutes = require('./routes/table');
-const queryRoutes = require('./routes/query');
-const importRoutes = require('./routes/import');
+async function start() {
+  try {
+    await store.initialize();
+  } catch (err) {
+    console.error('Failed to initialize internal database:', err.message);
+    process.exit(1);
+  }
+}
 
-const app = express();
-const PORT = process.env.APP_PORT || 3000;
+start().then(() => {
+  const app = express();
+  const PORT = process.env.APP_PORT || 3000;
+  const { getPool } = require('./db');
+
+  const authRoutes = require('./routes/auth');
+  const connectionsRoutes = require('./routes/connections');
+  const indexRoutes = require('./routes/index');
+  const databaseRoutes = require('./routes/database');
+  const tableRoutes = require('./routes/table');
+  const queryRoutes = require('./routes/query');
+  const importRoutes = require('./routes/import');
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -34,12 +44,12 @@ app.use(session({
   }
 }));
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   const isAuthPage = req.path === '/login' || req.path === '/register';
   const isStatic = req.path.startsWith('/css') || req.path.startsWith('/js');
 
   if (!isAuthPage && !isStatic && (!req.session || !req.session.user)) {
-    if (store.getUserCount() === 0) {
+    if ((await store.getUserCount()) === 0) {
       return res.redirect('/register');
     }
     return res.redirect('/login');
@@ -47,7 +57,7 @@ app.use((req, res, next) => {
 
   if (req.session && req.session.user) {
     const userId = req.session.user.id;
-    const userConns = store.getUserConnections(userId);
+    const userConns = await store.getUserConnections(userId);
     res.locals.userConns = userConns;
 
     if (!req.session.connId && userConns.length > 0) {
@@ -55,9 +65,9 @@ app.use((req, res, next) => {
     }
 
     if (req.session.connId) {
-      const activeConn = store.getConnectionById(userId, req.session.connId);
+      const activeConn = await store.getConnectionById(userId, req.session.connId);
       req.connId = req.session.connId;
-      req.pool = activeConn ? getPool(userId, req.session.connId) : null;
+      req.pool = activeConn ? await getPool(userId, req.session.connId) : null;
       req.connConfig = activeConn || null;
       res.locals.connId = req.connId;
       res.locals.connConfig = req.connConfig;
@@ -97,4 +107,5 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`DB Manager is now live.`);
+});
 });
