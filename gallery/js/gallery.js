@@ -2,7 +2,7 @@ async function loadGallery() {
   const grid = document.getElementById('gallery-grid');
   const empty = document.getElementById('gallery-empty');
   try {
-    const res = await fetch('assets/screenshots.json');
+    const res = await fetch('gallery/assets/screenshots.json');
     if (!res.ok) throw new Error('Failed to load screenshots.json');
     const screenshots = await res.json();
     if (!Array.isArray(screenshots) || screenshots.length === 0) {
@@ -14,7 +14,7 @@ async function loadGallery() {
     grid.innerHTML = screenshots.map((s, i) => `
       <div class="col-md-6 col-lg-4">
         <div class="screenshot-item" onclick="openLightbox('${s.src}', ${i})">
-          <img src="${s.src}" alt="${escapeHtml(s.caption || '')}" loading="lazy">
+          <img src="gallery/assets/screenshots/${s.src}" alt="${escapeHtml(s.caption || '')}" loading="lazy">
           <div class="screenshot-caption">${escapeHtml(s.caption || '')}</div>
         </div>
       </div>
@@ -34,7 +34,7 @@ function escapeHtml(text) {
 function openLightbox(src, index) {
   const lightbox = document.getElementById('lightbox');
   const img = document.getElementById('lightbox-img');
-  img.src = src;
+  img.src = 'gallery/assets/screenshots/' + src;
   lightbox.classList.add('active');
   document.body.style.overflow = 'hidden';
 }
