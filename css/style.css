@@ -1,0 +1,137 @@
+body {
+  padding-top: 56px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.hero {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  color: white;
+  padding: 120px 0 80px;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+}
+
+.hero .lead {
+  font-size: 1.25rem;
+  opacity: 0.9;
+}
+
+.feature-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  color: #0d6efd;
+}
+
+.screenshot-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.screenshot-item:hover {
+  transform: scale(1.02);
+}
+
+.screenshot-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.screenshot-caption {
+  padding: 10px;
+  background: white;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.lightbox {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.lightbox.active {
+  display: flex;
+}
+
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 4px;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 10000;
+}
+
+.doc-content {
+  line-height: 1.8;
+}
+
+.doc-content h2 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #0d6efd;
+}
+
+.doc-content h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.doc-content code {
+  background: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.doc-content pre {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.doc-content ul, .doc-content ol {
+  padding-left: 1.5rem;
+}
+
+.doc-content li {
+  margin-bottom: 0.5rem;
+}
+
+.footer {
+  margin-top: auto;
+}

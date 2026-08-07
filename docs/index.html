@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DB Manager Documentation - Setup, configuration, user guide, and troubleshooting.">
+  <meta name="author" content="Mohit Kumar">
+  <title>Documentation - DB Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="/"><i class="bi bi-database-fill-gear me-2"></i>DB Manager</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/docs/">Documentation</a></li>
+          <li class="nav-item"><a class="nav-link" href="/gallery/">Gallery</a></li>
+          <li class="nav-item"><a class="nav-link" href="https://github.com/mohit31kumar/db-manager" target="_blank"><i class="bi bi-github"></i> GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-5 pt-4">
+    <div class="row">
+      <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="position-sticky pt-3">
+          <h6 class="sidebar-heading px-3 mt-2 mb-1 text-muted text-uppercase">Getting Started</h6>
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="#introduction">Introduction</a></li>
+            <li class="nav-item"><a class="nav-link" href="#prerequisites">Prerequisites</a></li>
+            <li class="nav-item"><a class="nav-link" href="#installation">Installation</a></li>
+            <li class="nav-item"><a class="nav-link" href="#first-run">First Run</a></li>
+          </ul>
+          <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted text-uppercase">Configuration</h6>
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="#environment-variables">Environment Variables</a></li>
+            <li class="nav-item"><a class="nav-link" href="#ssl-setup">SSL Setup</a></li>
+          </ul>
+          <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted text-uppercase">User Guide</h6>
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="#managing-connections">Managing Connections</a></li>
+            <li class="nav-item"><a class="nav-link" href="#browsing-databases">Browsing Databases</a></li>
+            <li class="nav-item"><a class="nav-link" href="#table-management">Table Management</a></li>
+            <li class="nav-item"><a class="nav-link" href="#sql-query-editor">SQL Query Editor</a></li>
+            <li class="nav-item"><a class="nav-link" href="#import-export">Import / Export</a></li>
+          </ul>
+          <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted text-uppercase">Support</h6>
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="#troubleshooting">Troubleshooting</a></li>
+            <li class="nav-item"><a class="nav-link" href="#security">Security</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 doc-content">
+        <h1 class="h2 mb-4">Documentation</h1>
+
+        <section id="introduction">
+          <h2>Introduction</h2>
+          <p>DB Manager is a powerful, web-based database management tool built with Node.js and Express. It provides a modern alternative to phpMyAdmin with a clean Bootstrap 5 interface, multi-connection support, and advanced features like SQL formatting, EXPLAIN queries, and CSV/SQL import and export.</p>
+        </section>
+
+        <section id="prerequisites">
+          <h2>Prerequisites</h2>
+          <ul>
+            <li><strong>Node.js</strong> v14 or higher</li>
+            <li><strong>MySQL</strong> or <strong>MariaDB</strong> server (local or remote)</li>
+            <li>A <strong>Git</strong> client to clone the repository</li>
+          </ul>
+        </section>
+
+        <section id="installation">
+          <h2>Installation</h2>
+          <pre><code>git clone https://github.com/mohit31kumar/db-manager.git
+cd db-manager
+npm install</code></pre>
+          <p>This installs all required dependencies including <code>mysql2</code>, <code>bcrypt</code>, <code>express</code>, and <code>ejs</code>.</p>
+        </section>
+
+        <section id="first-run">
+          <h2>First Run</h2>
+          <ol>
+            <li>Copy <code>.env.example</code> to <code>.env</code> and configure your settings.</li>
+            <li>Create the internal MySQL database and run the schema SQL.</li>
+            <li>Start the server: <code>npm start</code></li>
+            <li>Open <code>http://localhost:3000</code> in your browser.</li>
+            <li>Register your first admin account.</li>
+            <li>Add your first database connection and start managing databases.</li>
+          </ol>
+        </section>
+
+        <section id="environment-variables">
+          <h2>Configuration</h2>
+          <p>Edit the <code>.env</code> file in the project root. All variables are optional except <code>SESSION_SECRET</code> and the internal MySQL connection settings.</p>
+          <pre><code>SESSION_SECRET=your-secret-key-here
+APP_PORT=3000
+
+# Internal MySQL database for app data
+INTERNAL_DB_HOST=localhost
+INTERNAL_DB_PORT=3306
+INTERNAL_DB_USER=root
+INTERNAL_DB_PASSWORD=
+INTERNAL_DB_NAME=db_manager
+INTERNAL_DB_SSL=false</code></pre>
+          <h3>Variable Reference</h3>
+          <table class="table table-striped">
+            <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>SESSION_SECRET</code></td><td><code>fallback-secret</code></td><td>Secret key for signing session cookies. Use a strong random string in production.</td></tr>
+              <tr><td><code>APP_PORT</code></td><td><code>3000</code></td><td>Port the Express server listens on.</td></tr>
+              <tr><td><code>INTERNAL_DB_HOST</code></td><td><code>localhost</code></td><td>MySQL host for internal app data (users, connections, saved queries).</td></tr>
+              <tr><td><code>INTERNAL_DB_PORT</code></td><td><code>3306</code></td><td>MySQL port for internal app data.</td></tr>
+              <tr><td><code>INTERNAL_DB_USER</code></td><td><code>root</code></td><td>MySQL username for internal app data.</td></tr>
+              <tr><td><code>INTERNAL_DB_PASSWORD</code></td><td><code></code></td><td>MySQL password for internal app data.</td></tr>
+              <tr><td><code>INTERNAL_DB_NAME</code></td><td><code>db_manager</code></td><td>MySQL database name for internal app data.</td></tr>
+              <tr><td><code>INTERNAL_DB_SSL</code></td><td><code>false</code></td><td>Set to <code>true</code> if your MySQL server requires SSL (e.g., TiDB Cloud, AWS RDS).</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="ssl-setup">
+          <h2>SSL Setup</h2>
+          <p>If your MySQL server requires SSL (common with cloud providers like TiDB Cloud, AWS RDS, Google Cloud SQL), set <code>INTERNAL_DB_SSL=true</code> in your <code>.env</code> file. DB Manager will automatically configure <code>rejectUnauthorized: false</code> for the internal connection.</p>
+          <p>For user-facing connections, SSL is auto-detected based on the server's response. You can also manually enable SSL when adding a connection in the UI.</p>
+        </section>
+
+        <section id="managing-connections">
+          <h2>User Guide</h2>
+          <h3>Managing Connections</h3>
+          <p>After logging in, go to <strong>Connections</strong> to manage your database connections.</p>
+          <ul>
+            <li><strong>Add Connection</strong> — Click "Add Connection" and enter the host, port, username, password, and database name. Enable SSL if required.</li>
+            <li><strong>Edit Connection</strong> — Click the edit icon next to any connection to update its details.</li>
+            <li><strong>Delete Connection</strong> — Click the delete icon to remove a connection. This also clears the connection pool.</li>
+            <li><strong>Activate Connection</strong> — Click "Activate" to switch the active connection. The dashboard will load databases from the active connection.</li>
+          </ul>
+          <p>Connections are stored securely with bcrypt-hashed passwords in the internal MySQL database.</p>
+        </section>
+
+        <section id="browsing-databases">
+          <h3>Browsing Databases and Tables</h3>
+          <p>From the dashboard, you can:</p>
+          <ul>
+            <li>View all databases on the active connection</li>
+            <li>Click a database to browse its tables</li>
+            <li>Create new databases with custom collation</li>
+            <li>Drop databases with confirmation</li>
+            <li>View table structure, indexes, and CREATE TABLE SQL</li>
+          </ul>
+        </section>
+
+        <section id="table-management">
+          <h3>Table Management</h3>
+          <p>Inside a database, you can manage tables:</p>
+          <ul>
+            <li><strong>Structure</strong> — View columns, types, keys, and indexes</li>
+            <li><strong>Add Column</strong> — Add new columns with full type configuration</li>
+            <li><strong>Modify Column</strong> — Change column types, nullability, defaults</li>
+            <li><strong>Drop Column</strong> — Remove columns with confirmation</li>
+            <li><strong>Change Engine</strong> — Switch between InnoDB, MyISAM, MEMORY</li>
+            <li><strong>Change Collation</strong> — Update table character set and collation</li>
+            <li><strong>Rename Table</strong> — Rename tables with confirmation</li>
+            <li><strong>Truncate</strong> — Remove all rows quickly with confirmation</li>
+          </ul>
+        </section>
+
+        <section id="sql-query-editor">
+          <h3>SQL Query Editor</h3>
+          <p>The SQL editor provides a rich editing experience:</p>
+          <ul>
+            <li>Syntax-highlighted code editor (CodeMirror)</li>
+            <li>Execute arbitrary SQL queries</li>
+            <li><strong>EXPLAIN</strong> support to analyze query performance</li>
+            <li>SQL formatting and prettification</li>
+            <li>Export results as CSV, SQL, or JSON</li>
+            <li>Query history stored in localStorage</li>
+            <li>Ctrl+Enter keyboard shortcut to run queries</li>
+          </ul>
+        </section>
+
+        <section id="import-export">
+          <h3>Import / Export</h3>
+          <p><strong>Import</strong></p>
+          <ul>
+            <li>Import SQL dump files with line-by-line error reporting</li>
+            <li>Import CSV files with column mapping and custom delimiters</li>
+          </ul>
+          <p><strong>Export</strong></p>
+          <ul>
+            <li>Export query results as CSV, SQL INSERT statements, or JSON</li>
+            <li>Custom CSV delimiter support</li>
+          </ul>
+        </section>
+
+        <section id="troubleshooting">
+          <h2>Troubleshooting</h2>
+          <h3>Common Errors</h3>
+          <h4>Access denied for user</h4>
+          <p>Verify the MySQL username and password in your connection settings. Ensure the user has the necessary privileges on the target database.</p>
+          <h4>Connections using insecure transport are prohibited</h4>
+          <p>Your MySQL server requires SSL. Enable SSL in the connection settings or set <code>INTERNAL_DB_SSL=true</code> for the internal database.</p>
+          <h4>Port 3000 already in use</h4>
+          <p>Change the port in <code>.env</code>: <code>APP_PORT=3001</code></p>
+          <h4>Pool is closed</h4>
+          <p>The connection pool was refreshed due to a timeout or network issue. Try the action again, or re-add the connection if the problem persists.</p>
+          <h4>ETIMEDOUT / ECONNREFUSED</h4>
+          <p>Check that the MySQL server is running, the host and port are correct, and firewall rules allow the connection.</p>
+        </section>
+
+        <section id="security">
+          <h2>Security</h2>
+          <h3>Session Security</h3>
+          <p>DB Manager uses <code>express-session</code> with <code>httpOnly</code> cookies and <code>sameSite: lax</code> protection. Always use a strong, random <code>SESSION_SECRET</code> in production.</p>
+          <h3>Password Storage</h3>
+          <p>User passwords are hashed with bcrypt (cost factor 10). Connection passwords are stored in the internal MySQL database.</p>
+          <h3>Internal Database Isolation</h3>
+          <p>The internal MySQL database stores users, connections, and saved queries. It is separate from the user-facing database connections and should be configured with restricted access.</p>
+          <h3>Best Practices</h3>
+          <ul>
+            <li>Never commit <code>.env</code> to version control</li>
+            <li>Use strong MySQL passwords and limit user privileges</li>
+            <li>Enable SSL for remote MySQL connections</li>
+            <li>Regularly backup the internal MySQL database</li>
+            <li>Keep Node.js and dependencies up to date</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <footer class="footer mt-auto py-4 bg-dark text-white">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p class="mb-0">&copy; 2024 <a href="https://github.com/mohit31kumar" class="text-white text-decoration-none">Mohit Kumar</a>. Built with ❤️.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <a href="https://github.com/mohit31kumar/db-manager" class="text-white me-3"><i class="bi bi-github"></i> GitHub</a>
+          <a href="https://github.com/mohit31kumar/db-manager/blob/main/LICENSE" class="text-white"><i class="bi bi-file-earmark-text"></i> MIT License</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DB Manager - A powerful, web-based database management tool built with Node.js. A modern alternative to phpMyAdmin.">
+  <meta name="author" content="Mohit Kumar">
+  <title>DB Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="/"><i class="bi bi-database-fill-gear me-2"></i>DB Manager</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="/docs/">Documentation</a></li>
+          <li class="nav-item"><a class="nav-link" href="/gallery/">Gallery</a></li>
+          <li class="nav-item"><a class="nav-link" href="https://github.com/mohit31kumar/db-manager" target="_blank"><i class="bi bi-github"></i> GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="container text-center">
+      <h1 class="display-4 fw-bold">DB Manager</h1>
+      <p class="lead">A powerful, web-based database management tool built with Node.js — a modern alternative to phpMyAdmin.</p>
+      <div class="mt-4">
+        <a href="/docs/" class="btn btn-light btn-lg me-2"><i class="bi bi-book me-2"></i>Get Started</a>
+        <a href="https://github.com/mohit31kumar/db-manager" class="btn btn-outline-light btn-lg" target="_blank"><i class="bi bi-github me-2"></i>View on GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="py-5">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+          <div class="card feature-card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+              <div class="feature-icon mb-3"><i class="bi bi-plug"></i></div>
+              <h5 class="card-title">Multi-Connection Support</h5>
+              <p class="card-text text-muted">Connect to multiple MySQL/MariaDB databases simultaneously. Add, edit, delete, and switch between connections with ease.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card feature-card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+              <div class="feature-icon mb-3"><i class="bi bi-shield-lock"></i></div>
+              <h5 class="card-title">Secure by Default</h5>
+              <p class="card-text text-muted">Password hashing with bcrypt, session-based auth, SSL/TLS auto-detection for cloud databases, and per-user isolated connections.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card feature-card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+              <div class="feature-icon mb-3"><i class="bi bi-code-square"></i></div>
+              <h5 class="card-title">SQL Query Editor</h5>
+              <p class="card-text text-muted">Syntax-highlighted editor with EXPLAIN support, SQL formatting, export to CSV/SQL/JSON, and Ctrl+Enter shortcuts.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card feature-card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+              <div class="feature-icon mb-3"><i class="bi bi-table"></i></div>
+              <h5 class="card-title">Table Management</h5>
+              <p class="card-text text-muted">View structure, add/modify/drop columns, change engines and collations, rename tables, and truncate with confirmation.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card feature-card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+              <div class="feature-icon mb-3"><i class="bi bi-upload"></i></div>
+              <h5 class="card-title">Import / Export</h5>
+              <p class="card-text text-muted">Import SQL dumps and CSV files with error reporting. Export query results in multiple formats with custom delimiters.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card feature-card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+              <div class="feature-icon mb-3"><i class="bi bi-phone"></i></div>
+              <h5 class="card-title">Responsive Design</h5>
+              <p class="card-text text-muted">Clean Bootstrap 5 UI with collapsible sidebar, toast notifications, and a mobile-friendly layout that works everywhere.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 bg-light">
+    <div class="container text-center">
+      <h2 class="mb-4">Ready to get started?</h2>
+      <p class="lead text-muted mb-4">Install DB Manager in minutes and start managing your databases with a modern, fast interface.</p>
+      <a href="/docs/" class="btn btn-primary btn-lg me-2"><i class="bi bi-book me-2"></i>Read the Docs</a>
+      <a href="https://github.com/mohit31kumar/db-manager" class="btn btn-outline-primary btn-lg" target="_blank"><i class="bi bi-github me-2"></i>Star on GitHub</a>
+    </div>
+  </section>
+
+  <footer class="footer mt-auto py-4 bg-dark text-white">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p class="mb-0">&copy; 2024 <a href="https://github.com/mohit31kumar" class="text-white text-decoration-none">Mohit Kumar</a>. Built with ❤️.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <a href="https://github.com/mohit31kumar/db-manager" class="text-white me-3"><i class="bi bi-github"></i> GitHub</a>
+          <a href="https://github.com/mohit31kumar/db-manager/blob/main/LICENSE" class="text-white"><i class="bi bi-file-earmark-text"></i> MIT License</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

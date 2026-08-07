@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DB Manager Screenshot Gallery - See the UI and features in action.">
+  <meta name="author" content="Mohit Kumar">
+  <title>Gallery - DB Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="/"><i class="bi bi-database-fill-gear me-2"></i>DB Manager</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="/docs/">Documentation</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/gallery/">Gallery</a></li>
+          <li class="nav-item"><a class="nav-link" href="https://github.com/mohit31kumar/db-manager" target="_blank"><i class="bi bi-github"></i> GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-5 pt-4">
+    <div class="text-center mb-5">
+      <h1 class="mb-3">Screenshot Gallery</h1>
+      <p class="lead text-muted">A living gallery of DB Manager in action. Add your own screenshots to <code>gallery/assets/screenshots/</code> and update <code>screenshots.json</code>.</p>
+    </div>
+    <div id="gallery-grid" class="row g-4">
+      <!-- Gallery items will be injected here by gallery.js -->
+    </div>
+    <div id="gallery-empty" class="text-center py-5" style="display:none;">
+      <i class="bi bi-images" style="font-size:3rem;color:#ccc;"></i>
+      <p class="text-muted mt-3">No screenshots yet. Add images to <code>gallery/assets/screenshots/</code> and update <code>screenshots.json</code>.</p>
+    </div>
+  </div>
+
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <span class="lightbox-close">&times;</span>
+    <img id="lightbox-img" src="" alt="Screenshot">
+  </div>
+
+  <footer class="footer mt-auto py-4 bg-dark text-white">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p class="mb-0">&copy; 2024 <a href="https://github.com/mohit31kumar" class="text-white text-decoration-none">Mohit Kumar</a>. Built with ❤️.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <a href="https://github.com/mohit31kumar/db-manager" class="text-white me-3"><i class="bi bi-github"></i> GitHub</a>
+          <a href="https://github.com/mohit31kumar/db-manager/blob/main/LICENSE" class="text-white"><i class="bi bi-file-earmark-text"></i> MIT License</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/gallery.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+[
+  {
+    "src": "dashboard.png",
+    "caption": "Dashboard - Browse databases and server info",
+    "order": 1
+  },
+  {
+    "src": "connections.png",
+    "caption": "Connections - Manage multiple MySQL connections",
+    "order": 2
+  },
+  {
+    "src": "query-editor.png",
+    "caption": "SQL Query Editor - Syntax highlighting and EXPLAIN support",
+    "order": 3
+  },
+  {
+    "src": "table-structure.png",
+    "caption": "Table Structure - View columns, indexes, and CREATE TABLE SQL",
+    "order": 4
+  }
+]
