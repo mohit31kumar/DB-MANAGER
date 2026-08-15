@@ -106,6 +106,6 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`DB Manager is now live.`);
+  console.log(`DB Manager is now live. on port : ${PORT}`);
 });
 });
