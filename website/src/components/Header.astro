@@ -1,0 +1,29 @@
+---
+const base = import.meta.env.BASE_URL;
+const links = [
+  { href: base, label: 'Home' },
+  { href: `${base}docs`, label: 'Docs' },
+  { href: 'https://github.com/mohit31kumar/DB-MANAGER', label: 'GitHub', external: true },
+];
+---
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href={base}>
+      <span class="logo">DB</span>
+      DB<span style="color: var(--primary)">Manager</span>
+    </a>
+    <div class="nav-links">
+      {
+        links.map((l) =>
+          l.external ? (
+            <a href={l.href} target="_blank" rel="noopener noreferrer">{l.label}</a>
+          ) : (
+            <a href={l.href}>{l.label}</a>
+          )
+        )
+      }
+      <a class="nav-cta" href={`${base}docs`}>Get Started</a>
+    </div>
+  </div>
+</nav>

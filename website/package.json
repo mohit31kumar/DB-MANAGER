@@ -1,0 +1,16 @@
+{
+  "name": "db-manager-website",
+  "version": "1.0.0",
+  "description": "Marketing and docs website for DB Manager",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prebuild": "node scripts/prebuild.mjs",
+    "dev": "astro dev",
+    "build": "npm run prebuild && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^5.0.0"
+  }
+}

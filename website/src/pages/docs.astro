@@ -1,0 +1,112 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Docs — DB Manager" description="Getting started, connection strings, and configuration for DB Manager.">
+  <div class="docs-wrap">
+    <h1>Documentation</h1>
+    <p class="docs-sub">Install DB Manager, connect to your MySQL or MariaDB database, and start managing it in minutes.</p>
+
+    <section class="doc-section" id="getting-started">
+      <h2>Getting Started</h2>
+
+      <h3>Prerequisites</h3>
+      <ul>
+        <li><strong>Node.js</strong> (v14 or higher)</li>
+        <li>A <strong>MySQL or MariaDB</strong> server — local or remote</li>
+        <li>One MySQL server to store app data (users and saved connections)</li>
+      </ul>
+
+      <h3>Installation</h3>
+      <ol class="steps">
+        <li>
+          <strong>Clone the repository</strong>
+          <pre><code>git clone https://github.com/mohit31kumar/DB-MANAGER.git
+<span class="cm">cd DB-MANAGER</span></code></pre>
+        </li>
+        <li>
+          <strong>Install dependencies</strong>
+          <pre><code>npm install</code></pre>
+        </li>
+        <li>
+          <strong>Configure your environment</strong>
+          <pre><code>cp .env.example .env</code></pre>
+          <p>Edit <code>.env</code> with your settings — <code>SESSION_SECRET</code>, <code>APP_PORT</code>, and your internal MySQL credentials.</p>
+        </li>
+        <li>
+          <strong>Start the server</strong>
+          <pre><code>npm start</code></pre>
+        </li>
+      </ol>
+
+      <h3>First Run</h3>
+      <ol class="steps">
+        <li>Open <code>http://localhost:3000</code> in your browser</li>
+        <li>Create your account on the registration page</li>
+        <li>Add your first database connection — or paste a connection string</li>
+        <li>Start managing your databases!</li>
+      </ol>
+
+      <div class="callout">
+        <strong>Tip:</strong> On first run you are the admin user. Subsequent users register normally and manage their own connections.
+      </div>
+    </section>
+
+    <section class="doc-section" id="connection-strings">
+      <h2>Connection Strings</h2>
+      <p>
+        Instead of filling every field, paste a connection string and click
+        <strong>Parse &amp; Fill</strong>. DB Manager recognizes three formats.
+      </p>
+
+      <div class="format-card">
+        <div class="label">URI format</div>
+        <pre><code>mysql://<span class="str">user:password@host:port/dbname</span></code></pre>
+        <pre><code>mysql://admin:mypassword@db.example.com:3306/mydb</code></pre>
+        <p>Add <code>?sslMode=require</code> for cloud databases.</p>
+      </div>
+
+      <div class="format-card">
+        <div class="label">JDBC format</div>
+        <pre><code>jdbc:mysql://host:port/dbname?user=<span class="str">...&amp;password=...&amp;sslMode=require</span></code></pre>
+      </div>
+
+      <div class="format-card">
+        <div class="label">Simple format</div>
+        <pre><code><span class="str">user:password@host:port/dbname</span></code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Note:</strong> After parsing, you can hit <strong>Test Connection</strong> to verify the credentials before saving.
+      </div>
+    </section>
+
+    <section class="doc-section" id="configuration">
+      <h2>Configuration</h2>
+      <p>All configuration lives in the <code>.env</code> file at the project root.</p>
+
+      <pre><code>SESSION_SECRET=your-secret-key-here
+APP_PORT=3000
+
+<span class="cm"># Internal MySQL database for app data</span>
+INTERNAL_DB_HOST=localhost
+INTERNAL_DB_PORT=3306
+INTERNAL_DB_USER=root
+INTERNAL_DB_PASSWORD=
+INTERNAL_DB_NAME=db_manager
+<span class="cm"># Set to true if your MySQL server requires SSL
+# (e.g. TiDB Cloud, AWS RDS)</span>
+INTERNAL_DB_SSL=false</code></pre>
+
+      <h3>Environment variables</h3>
+      <ul>
+        <li><code>SESSION_SECRET</code> — secret key used to sign session cookies. Set a long, random value.</li>
+        <li><code>APP_PORT</code> — port the web server listens on (default <code>3000</code>).</li>
+        <li><code>INTERNAL_DB_HOST</code> / <code>INTERNAL_DB_PORT</code> — host and port of the MySQL server that stores app data.</li>
+        <li><code>INTERNAL_DB_USER</code> / <code>INTERNAL_DB_PASSWORD</code> — credentials for the internal MySQL user.</li>
+        <li><code>INTERNAL_DB_NAME</code> — database name for app data (default <code>db_manager</code>).</li>
+        <li><code>INTERNAL_DB_SSL</code> — set <code>true</code> when the internal MySQL server requires SSL.</li>
+      </ul>
+    </section>
+  </div>
+</Layout>

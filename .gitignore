@@ -6,3 +6,9 @@ users.db
 users.db-shm
 users.db-wal
 .kilo
+
+# Website build output
+website/dist/
+website/.astro/
+website/node_modules/
+website/public/screenshots/

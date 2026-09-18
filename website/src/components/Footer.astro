@@ -1,0 +1,36 @@
+---
+const base = import.meta.env.BASE_URL;
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="brand-col">
+        <h4>DB Manager</h4>
+        <p>A web-based MySQL/MariaDB database manager. Connect with a connection string — browse, query, and manage your data from any browser.</p>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <ul>
+          <li><a href={`${base}docs`}>Getting Started</a></li>
+          <li><a href={`${base}docs#connection-strings`}>Connection Strings</a></li>
+          <li><a href={`${base}docs#configuration`}>Configuration</a></li>
+          <li><a href={`${base}#faq`}>FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/mohit31kumar/DB-MANAGER" target="_blank" rel="noopener noreferrer">GitHub Repository</a></li>
+          <li><a href="https://github.com/mohit31kumar/DB-MANAGER/issues" target="_blank" rel="noopener noreferrer">Report an Issue</a></li>
+          <li><a href="https://mohit31kumar.github.io" target="_blank" rel="noopener noreferrer">Author</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© {year} Mohit Kumar</span>
+      <span>Built with ❤️ · <a href="https://github.com/mohit31kumar/DB-MANAGER/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></span>
+    </div>
+  </div>
+</footer>

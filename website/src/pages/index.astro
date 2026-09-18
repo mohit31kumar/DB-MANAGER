@@ -1,0 +1,209 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const features = [
+  {
+    icon: '🔌',
+    title: 'Connect with a Connection String',
+    desc: 'No tedious setup forms. Paste mysql://, JDBC, or simple connection strings and DB Manager fills in the rest automatically.',
+  },
+  {
+    icon: '🖥️',
+    title: 'Works Anywhere, No Install',
+    desc: 'Manage any MySQL or MariaDB — local or remote/cloud — straight from your browser. No database client to download.',
+  },
+  {
+    icon: '🗄️',
+    title: 'Browse & Manage Databases',
+    desc: 'See all databases and tables at a glance. Create, rename, and drop databases with easy confirmation dialogs.',
+  },
+  {
+    icon: '✏️',
+    title: 'Full Table CRUD',
+    desc: 'Browse rows with pagination and sorting. Insert, edit, and delete records with type-aware forms and NULL handling.',
+  },
+  {
+    icon: '⌨️',
+    title: 'SQL Query Editor',
+    desc: 'A syntax-highlighted editor with EXPLAIN support, SQL formatting, query history, and export to CSV, SQL, or JSON.',
+  },
+  {
+    icon: '📥',
+    title: 'Import & Export',
+    desc: 'Import SQL dumps and CSVs with column mapping. Export results in multiple formats with custom delimiters.',
+  },
+  {
+    icon: '🎛️',
+    title: 'Multi-Connection Workflows',
+    desc: 'Add unlimited connections and switch between them instantly from the navbar — perfect for juggling dev and prod.',
+  },
+  {
+    icon: '🛡️',
+    title: 'Secure by Design',
+    desc: 'bcrypt password hashing, session-based auth, per-user isolated connections, and optional SSL/TLS for cloud DBs.',
+  },
+  {
+    icon: '🔧',
+    title: 'Schema & Structure Tools',
+    desc: 'Inspect columns, indexes, and DDL. Modify columns, change engines and collations, add/drop columns — all in the UI.',
+  },
+];
+
+const highlights = [
+  { icon: '⚡', title: 'Paste & Go', desc: 'Connection string auto-parse' },
+  { icon: '🌐', title: 'Remote-ready', desc: 'Cloud DBs: TiDB, AWS RDS, GCP' },
+  { icon: '🧩', title: 'Beginner-friendly', desc: 'Built for everyone, no CLI' },
+  { icon: '🚀', title: 'Lightweight', desc: 'Node.js + Express, browser-based' },
+];
+
+const shots = [
+  { src: `${base}screenshots/connection.png`, title: 'Connect', desc: 'Paste a connection string and click Parse & Fill — the form is populated automatically.' },
+  { src: `${base}screenshots/dashboard.png`, title: 'Dashboard', desc: 'Every database on your server, at a glance.' },
+  { src: `${base}screenshots/table.png`, title: 'Table Browser', desc: 'Browse, insert, edit, and delete rows with pagination and sorting.' },
+  { src: `${base}screenshots/query-editor.png`, title: 'SQL Editor', desc: 'Syntax-highlighted editor with exportable query results.' },
+  { src: `${base}screenshots/import-export.png`, title: 'Import & Export', desc: 'Import SQL dumps and CSV files, export results in multiple formats.' },
+];
+
+const tech = ['Node.js', 'Express', 'MySQL / MariaDB', 'mysql2', 'Bootstrap 5', 'CodeMirror', 'EJS', 'bcrypt'];
+
+const faqs = [
+  {
+    q: 'How do I connect to my database?',
+    a: 'Add a connection from the dashboard and paste your connection string (mysql://, JDBC, or simple user:pass@host:port/db). DB Manager parses it and fills the fields for you. Click "Test Connection" to verify, then save.',
+  },
+  {
+    q: 'Can I manage a remote or cloud database?',
+    a: 'Yes. Works with any reachable MySQL or MariaDB server, including cloud databases like TiDB Cloud, AWS RDS, and Google Cloud SQL. Just enable the SSL option when the server requires it.',
+  },
+  {
+    q: 'Do I need to install a database client?',
+    a: 'No. DB Manager runs on a small Node.js server and is used entirely in the browser — no desktop client or GUI app needed.',
+  },
+  {
+    q: 'Can I connect to multiple databases at once?',
+    a: 'Yes. Add as many connections as you need and switch between them instantly using the dropdown in the top navbar.',
+  },
+  {
+    q: 'Is my connection data secure?',
+    a: 'Passwords are hashed with bcrypt, sessions are protected, and each user only ever sees their own saved connections. SSL/TLS is available for encrypted connections to cloud databases.',
+  },
+  {
+    q: 'Is a local MySQL server required?',
+    a: 'Only one MySQL server is needed to store app data (users and saved connections). The databases you manage can be anywhere — local or remote.',
+  },
+];
+---
+
+<Layout>
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-inner">
+      <span class="hero-badge">Web-based · Open source · Free</span>
+      <h1>Paste a connection string. <span class="accent">You're in.</span></h1>
+      <p class="lead">
+        DB Manager is a web-based MySQL/MariaDB database manager. Connect to any local or remote
+        database in seconds, then browse, query, and manage your data — all from the browser.
+      </p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href={`${base}docs`}>Get Started</a>
+        <a class="btn btn-secondary" href="https://github.com/mohit31kumar/DB-MANAGER" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+      </div>
+      <div class="code-pill">mysql://admin:•••••@db.example.com:3306/mydb</div>
+    </div>
+  </header>
+
+  <!-- Highlights strip -->
+  <section class="highlights">
+    {
+      highlights.map((h) => (
+        <div class="highlight">
+          <span class="ic">{h.icon}</span>
+          <span><b>{h.title}</b>{h.desc}</span>
+        </div>
+      ))
+    }
+  </section>
+
+  <!-- Features -->
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-head">
+        <h2>Everything you need to manage MySQL</h2>
+        <p>From a quick look at your data to complex queries and imports — DB Manager keeps it simple for developers and non-technical users alike.</p>
+      </div>
+      <div class="features">
+        {
+          features.map((f) => (
+            <div class="feature">
+              <div class="fic">{f.icon}</div>
+              <h3>{f.title}</h3>
+              <p>{f.desc}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Screenshots -->
+  <section class="section alt" id="screenshots">
+    <div class="section-inner">
+      <div class="section-head">
+        <h2>See it in action</h2>
+        <p>Real screenshots from the DB Manager interface.</p>
+      </div>
+      <div class="gallery">
+        {
+          shots.map((s) => (
+            <figure class="shot">
+              <img src={s.src} alt={`DB Manager — ${s.title}`} loading="lazy" />
+              <figcaption><h3>{s.title}</h3>{s.desc}</figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech stack -->
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-head">
+        <h2>Built on modern, open technology</h2>
+        <p>Lightweight and fast — running on a simple Node.js backend.</p>
+      </div>
+      <div class="tech">
+        {tech.map((t) => <span class="chip">{t}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section alt" id="faq">
+    <div class="section-inner">
+      <div class="section-head">
+        <h2>Frequently asked questions</h2>
+        <p>Quick answers to the questions we hear most.</p>
+      </div>
+      <div class="faq">
+        {
+          faqs.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <div class="faq-body">{f.a}</div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-band">
+    <h2>Ready to manage your databases?</h2>
+    <p>Install locally or connect to your remote database — it takes less than a minute.</p>
+    <a class="btn" href={`${base}docs`}>Get Started</a>
+  </section>
+</Layout>
