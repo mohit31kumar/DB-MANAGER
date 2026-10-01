@@ -1,0 +1,203 @@
+---
+// Interactive WebGL fluid background for the hero. Renders a dark navy canvas
+// with a brand-blue fluid simulation that reacts to cursor/touch. Pauses when
+// off-screen or when the user prefers reduced motion.
+---
+
+<canvas class="fluid-canvas" data-fluid-canvas aria-hidden="true"></canvas>
+
+<style>
+  .fluid-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    animation: fluid-fade-in 1.4s ease forwards;
+  }
+  @keyframes fluid-fade-in {
+    to { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fluid-canvas { animation: none; opacity: 1; }
+  }
+</style>
+
+<script>
+  import { Fluid } from '../scripts/fluid.mjs';
+
+  const canvas = document.querySelector('[data-fluid-canvas]');
+
+  if (canvas) {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!reducedMotion) {
+      // Phones and low-core devices get a lighter sim: the pressure solver and
+      // dye advection are the expensive passes, so both scale down together.
+      const light = window.matchMedia('(max-width: 768px)').matches
+        || (navigator.hardwareConcurrency || 8) <= 4;
+
+      const fluid = new Fluid(canvas, {
+        simResolution: light ? 128 : 192,
+        dyeResolution: light ? 512 : 1024,
+        densityDissipation: 0.28,
+        velocityDissipation: 0.16,
+        pressure: 0.8,
+        pressureIterations: light ? 14 : 20,
+        curl: 34,
+        splatRadius: 0.32,
+      });
+
+      if (fluid.ready) {
+        // brand-blue palette: #0d6efd, #3b82f6, #1e40af, #60a5fa
+        const palette = [
+          [0.16, 0.52, 1.0],
+          [0.32, 0.6, 1.0],
+          [0.2, 0.38, 0.9],
+          [0.5, 0.72, 1.0],
+        ];
+
+        const randomColor = () => palette[Math.floor(Math.random() * palette.length)];
+
+        const pointer = {
+          x: 0.5,
+          y: 0.5,
+          deltaX: 0,
+          deltaY: 0,
+          down: false,
+          moved: false,
+          color: randomColor(),
+        };
+
+        const correctDelta = (delta) => {
+          const aspect = canvas.width / canvas.height;
+          if (aspect < 1) return delta * aspect;
+          return delta;
+        };
+
+        // Force is applied exactly once here; callers pass normalized deltas.
+        const FORCE = 5200;
+        const splatAt = (x, y, dx, dy, color) => {
+          fluid.splat(x, y, correctDelta(dx) * FORCE, correctDelta(dy) * FORCE, color);
+        };
+
+        const updatePointer = (e) => {
+          const rect = canvas.getBoundingClientRect();
+          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+          const x = (clientX - rect.left) / rect.width;
+          const y = 1 - (clientY - rect.top) / rect.height;
+          pointer.deltaX = correctDelta(x - pointer.x);
+          pointer.deltaY = correctDelta(y - pointer.y);
+          pointer.x = x;
+          pointer.y = y;
+          pointer.moved = true;
+          if (Math.random() > 0.85) pointer.color = randomColor();
+        };
+
+        const onPointerDown = (e) => {
+          updatePointer(e);
+          pointer.down = true;
+          pointer.color = randomColor();
+        };
+
+        const onPointerMove = (e) => {
+          if (e.pointerType === 'mouse' || e.pointerType === 'touch' || e.pointerType === 'pen') {
+            updatePointer(e);
+          }
+        };
+
+        const onPointerUp = () => {
+          pointer.down = false;
+        };
+
+        canvas.parentElement?.addEventListener('pointerdown', onPointerDown);
+        window.addEventListener('pointermove', onPointerMove, { passive: true });
+        window.addEventListener('pointerup', onPointerUp, { passive: true });
+
+        // seed initial splats so the hero is alive on first paint
+        const seed = (count) => {
+          for (let i = 0; i < count; i++) {
+            const x = Math.random();
+            const y = 0.15 + Math.random() * 0.7;
+            const dx = (Math.random() - 0.5) * 0.06;
+            const dy = (Math.random() - 0.5) * 0.06;
+            const color = randomColor();
+            splatAt(x, y, dx, dy, color);
+            splatAt(x, y, dx, dy, color);
+          }
+        };
+        seed(60);
+
+        // animation loop with pause when off-screen
+        let frameId = 0;
+        let lastTime = performance.now();
+        let visible = true;
+
+        const resize = () => fluid.resize();
+        window.addEventListener('resize', resize, { passive: true });
+
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            visible = entry.isIntersecting;
+          },
+          { threshold: 0 }
+        );
+        if (canvas.parentElement) observer.observe(canvas.parentElement);
+
+        let lastAutoSplat = 0;
+
+        const frame = (now) => {
+          frameId = window.requestAnimationFrame(frame);
+          if (!visible) {
+            lastTime = now;
+            return;
+          }
+          const dt = Math.min((now - lastTime) / 1000, 0.016666);
+          lastTime = now;
+          fluid.resize();
+
+          if (pointer.moved) {
+            splatAt(pointer.x, pointer.y, pointer.deltaX, pointer.deltaY, pointer.color);
+            pointer.moved = false;
+            pointer.deltaX *= 0.8;
+            pointer.deltaY *= 0.8;
+          }
+          if (pointer.down) {
+            splatAt(pointer.x, pointer.y, 0, 0, pointer.color);
+          }
+
+          // ambient motion so the fluid keeps breathing without input
+          if (now - lastAutoSplat > 140) {
+            lastAutoSplat = now;
+            const x = Math.random();
+            const y = 0.15 + Math.random() * 0.7;
+            const dx = (Math.random() - 0.5) * 0.05;
+            const dy = (Math.random() - 0.5) * 0.05;
+            splatAt(x, y, dx, dy, randomColor());
+          }
+
+          fluid.step(dt);
+          fluid.render();
+        };
+
+        // intro fade is handled in CSS; the loop just renders
+
+        lastTime = performance.now();
+        frameId = window.requestAnimationFrame(frame);
+
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) {
+            window.cancelAnimationFrame(frameId);
+          } else {
+            lastTime = performance.now();
+            frameId = window.requestAnimationFrame(frame);
+          }
+        });
+      }
+    }
+  }
+</script>
