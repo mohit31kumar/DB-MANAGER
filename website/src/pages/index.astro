@@ -1,62 +1,81 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import FluidBackground from '../components/FluidBackground.astro';
+import Icon from '../components/Icon.astro';
 
 const base = import.meta.env.BASE_URL;
 
 const features = [
   {
-    icon: '🔌',
+    icon: 'plug',
     title: 'Connect with a Connection String',
     desc: 'No tedious setup forms. Paste mysql://, JDBC, or simple connection strings and DB Manager fills in the rest automatically.',
   },
   {
-    icon: '🖥️',
+    icon: 'globe',
     title: 'Works Anywhere, No Install',
     desc: 'Manage any MySQL or MariaDB — local or remote/cloud — straight from your browser. No database client to download.',
   },
   {
-    icon: '🗄️',
+    icon: 'database',
     title: 'Browse & Manage Databases',
     desc: 'See all databases and tables at a glance. Create, rename, and drop databases with easy confirmation dialogs.',
   },
   {
-    icon: '✏️',
+    icon: 'edit',
     title: 'Full Table CRUD',
     desc: 'Browse rows with pagination and sorting. Insert, edit, and delete records with type-aware forms and NULL handling.',
   },
   {
-    icon: '⌨️',
+    icon: 'keyboard',
     title: 'SQL Query Editor',
     desc: 'A syntax-highlighted editor with EXPLAIN support, SQL formatting, query history, and export to CSV, SQL, or JSON.',
   },
   {
-    icon: '📥',
+    icon: 'download',
     title: 'Import & Export',
     desc: 'Import SQL dumps and CSVs with column mapping. Export results in multiple formats with custom delimiters.',
   },
   {
-    icon: '🎛️',
+    icon: 'layers',
     title: 'Multi-Connection Workflows',
     desc: 'Add unlimited connections and switch between them instantly from the navbar — perfect for juggling dev and prod.',
   },
   {
-    icon: '🛡️',
+    icon: 'shield',
     title: 'Secure by Design',
     desc: 'bcrypt password hashing, session-based auth, per-user isolated connections, and optional SSL/TLS for cloud DBs.',
   },
   {
-    icon: '🔧',
+    icon: 'tools',
     title: 'Schema & Structure Tools',
     desc: 'Inspect columns, indexes, and DDL. Modify columns, change engines and collations, add/drop columns — all in the UI.',
   },
 ];
 
 const highlights = [
-  { icon: '⚡', title: 'Paste & Go', desc: 'Connection string auto-parse' },
-  { icon: '🌐', title: 'Remote-ready', desc: 'Cloud DBs: TiDB, AWS RDS, GCP' },
-  { icon: '🧩', title: 'Beginner-friendly', desc: 'Built for everyone, no CLI' },
-  { icon: '🚀', title: 'Lightweight', desc: 'Node.js + Express, browser-based' },
+  { icon: 'bolt', title: 'Paste & Go', desc: 'Connection string auto-parse' },
+  { icon: 'globe', title: 'Remote-ready', desc: 'Cloud DBs: TiDB, AWS RDS, GCP' },
+  { icon: 'puzzle', title: 'Beginner-friendly', desc: 'Built for everyone, no CLI' },
+  { icon: 'rocket', title: 'Lightweight', desc: 'Node.js + Express, browser-based' },
+];
+
+const flow = [
+  {
+    title: 'Paste your connection string',
+    desc: 'Drop in a mysql://, JDBC, or simple connection string. DB Manager parses host, port, user, password, and database for you.',
+    sample: 'mysql://admin:•••••@db.example.com:3306/mydb',
+  },
+  {
+    title: 'Test and save the connection',
+    desc: 'Hit Test Connection to verify credentials, then save. Add as many as you like and switch between them from the navbar.',
+    sample: '✔ Connected to mydb in 38ms',
+  },
+  {
+    title: 'Browse, query, and manage',
+    desc: 'Explore schemas, edit rows, run SQL, and import or export results — all from the browser, on any device.',
+    sample: 'SELECT * FROM users LIMIT 50;',
+  },
 ];
 
 const shots = [
@@ -102,47 +121,97 @@ const faqs = [
   <header class="hero">
     <FluidBackground />
     <div class="hero-inner">
-      <span class="hero-badge">Web-based · Open source · Free</span>
-      <h1>Paste a connection string. <span class="accent">You're in.</span></h1>
-      <p class="lead">
+      <span class="hero-badge" data-reveal="none">
+        <span class="pulse" aria-hidden="true"></span>
+        Open source · Self-hosted · Free
+      </span>
+
+      <h1 data-reveal="none">Paste a connection string. <span class="accent">You're in.</span></h1>
+
+      <p class="lead" data-reveal="none">
         DB Manager is a web-based MySQL/MariaDB database manager. Connect to any local or remote
         database in seconds, then browse, query, and manage your data — all from the browser.
       </p>
-      <div class="btn-row">
-        <a class="btn btn-primary" href={`${base}docs`}>Get Started</a>
-        <a class="btn btn-secondary" href="https://github.com/mohit31kumar/DB-MANAGER" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+
+      <div class="btn-row" data-reveal="none">
+        <a class="btn btn-primary" href={`${base}docs`}>
+          Get Started
+          <Icon name="arrowRight" size={17} />
+        </a>
+        <a class="btn btn-secondary" href="https://github.com/mohit31kumar/DB-MANAGER" target="_blank" rel="noopener noreferrer">
+          <Icon name="github" size={17} />
+          View on GitHub
+        </a>
       </div>
-      <div class="code-pill">mysql://admin:•••••@db.example.com:3306/mydb</div>
+
+      <div class="code-pill" data-reveal="none" aria-hidden="true">
+        <span class="prompt">&gt;</span>
+        <span>mysql://admin:•••••@db.example.com:3306/mydb</span>
+        <span class="caret"></span>
+      </div>
     </div>
   </header>
 
   <!-- Highlights strip -->
-  <section class="highlights">
+  <section class="highlights" aria-label="Highlights">
     {
-      highlights.map((h) => (
-        <div class="highlight">
-          <span class="ic">{h.icon}</span>
-          <span><b>{h.title}</b>{h.desc}</span>
+      highlights.map((h, i) => (
+        <div class="highlight" data-reveal data-reveal-index={i} data-spotlight>
+          <span class="ic">
+            <Icon name={h.icon} />
+          </span>
+          <span>
+            <b>{h.title}</b>
+            {h.desc}
+          </span>
         </div>
       ))
     }
   </section>
 
-  <!-- Features -->
-  <section class="section">
+  <!-- How it works -->
+  <section class="section" id="how-it-works">
     <div class="section-inner">
-      <div class="section-head">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">How it works</span>
+        <h2>Three steps to your first query</h2>
+        <p>No client to install, no config file to hand-edit. DB Manager turns a connection string into a working session.</p>
+      </div>
+
+      <div class="steps-flow">
+        {
+          flow.map((step, i) => (
+            <article class="flow-step" data-reveal data-reveal-index={i} data-spotlight>
+              <div class="flow-num">{i + 1}</div>
+              <h3>{step.title}</h3>
+              <p>{step.desc}</p>
+              <code class="flow-sample">{step.sample}</code>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section alt" id="features">
+    <div class="section-inner">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Features</span>
         <h2>Everything you need to manage MySQL</h2>
         <p>From a quick look at your data to complex queries and imports — DB Manager keeps it simple for developers and non-technical users alike.</p>
       </div>
+
       <div class="features">
         {
-          features.map((f) => (
-            <div class="feature">
-              <div class="fic">{f.icon}</div>
+          features.map((f, i) => (
+            <article class="feature" data-reveal data-reveal-index={i % 3} data-spotlight>
+              <div class="fic">
+                <Icon name={f.icon} />
+              </div>
               <h3>{f.title}</h3>
               <p>{f.desc}</p>
-            </div>
+            </article>
           ))
         }
       </div>
@@ -150,18 +219,23 @@ const faqs = [
   </section>
 
   <!-- Screenshots -->
-  <section class="section alt" id="screenshots">
+  <section class="section" id="screenshots">
     <div class="section-inner">
-      <div class="section-head">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Interface</span>
         <h2>See it in action</h2>
         <p>Real screenshots from the DB Manager interface.</p>
       </div>
+
       <div class="gallery">
         {
-          shots.map((s) => (
-            <figure class="shot">
-              <img src={s.src} alt={`DB Manager — ${s.title}`} loading="lazy" />
-              <figcaption><h3>{s.title}</h3>{s.desc}</figcaption>
+          shots.map((s, i) => (
+            <figure class="shot" data-reveal data-reveal-index={i % 2} data-spotlight>
+              <img src={s.src} alt={`DB Manager — ${s.title}`} loading="lazy" width="1200" height="800" />
+              <figcaption>
+                <h3>{s.title}</h3>
+                {s.desc}
+              </figcaption>
             </figure>
           ))
         }
@@ -169,30 +243,45 @@ const faqs = [
     </div>
   </section>
 
-  <!-- Tech stack -->
-  <section class="section">
+  <!-- Tech stack marquee -->
+  <section class="section alt" id="stack">
     <div class="section-inner">
-      <div class="section-head">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Tech stack</span>
         <h2>Built on modern, open technology</h2>
         <p>Lightweight and fast — running on a simple Node.js backend.</p>
       </div>
-      <div class="tech">
-        {tech.map((t) => <span class="chip">{t}</span>)}
+
+      <div class="marquee" data-reveal>
+        <div class="marquee-track">
+          {
+            [...tech, ...tech].map((t) => (
+              <span class="chip">
+                <Icon name="layers" size={15} />
+                {t}
+              </span>
+            ))
+          }
+        </div>
       </div>
+
+      <p class="sr-only">{tech.join(', ')}</p>
     </div>
   </section>
 
   <!-- FAQ -->
-  <section class="section alt" id="faq">
+  <section class="section" id="faq">
     <div class="section-inner">
-      <div class="section-head">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">FAQ</span>
         <h2>Frequently asked questions</h2>
         <p>Quick answers to the questions we hear most.</p>
       </div>
+
       <div class="faq">
         {
-          faqs.map((f) => (
-            <details>
+          faqs.map((f, i) => (
+            <details data-reveal data-reveal-index={Math.min(i, 5)} data-spotlight>
               <summary>{f.q}</summary>
               <div class="faq-body">{f.a}</div>
             </details>
@@ -204,8 +293,13 @@ const faqs = [
 
   <!-- CTA -->
   <section class="cta-band">
-    <h2>Ready to manage your databases?</h2>
-    <p>Install locally or connect to your remote database — it takes less than a minute.</p>
-    <a class="btn" href={`${base}docs`}>Get Started</a>
+    <div data-reveal="none">
+      <h2>Ready to manage your databases?</h2>
+      <p>Install locally or connect to your remote database — it takes less than a minute.</p>
+      <a class="btn" href={`${base}docs`}>
+        Get Started
+        <Icon name="arrowRight" size={17} />
+      </a>
+    </div>
   </section>
 </Layout>

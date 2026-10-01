@@ -1,112 +1,272 @@
 ---
+import { Code } from 'astro:components';
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const sections = [
+  { id: 'getting-started', label: 'Getting Started' },
+  { id: 'connection-strings', label: 'Connection Strings' },
+  { id: 'configuration', label: 'Configuration' },
+  { id: 'security', label: 'Security' },
+];
+
+const lang: Record<string, string> = { bash: 'bash', env: 'dotenv', text: 'text' };
+
 ---
 
-<Layout title="Docs — DB Manager" description="Getting started, connection strings, and configuration for DB Manager.">
-  <div class="docs-wrap">
-    <h1>Documentation</h1>
-    <p class="docs-sub">Install DB Manager, connect to your MySQL or MariaDB database, and start managing it in minutes.</p>
+<Layout
+  title="Docs — DB Manager"
+  description="Getting started, connection strings, configuration, and security for DB Manager."
+>
+  <div class="docs-shell">
+    <div class="docs-main">
+      <header data-reveal="none">
+        <h1>Documentation</h1>
+        <p class="docs-sub">
+          Install DB Manager, connect to your MySQL or MariaDB database, and start managing it in minutes.
+        </p>
+      </header>
 
-    <section class="doc-section" id="getting-started">
-      <h2>Getting Started</h2>
+      <section class="doc-section" id="getting-started" data-reveal>
+        <h2>Getting Started</h2>
 
-      <h3>Prerequisites</h3>
-      <ul>
-        <li><strong>Node.js</strong> (v14 or higher)</li>
-        <li>A <strong>MySQL or MariaDB</strong> server — local or remote</li>
-        <li>One MySQL server to store app data (users and saved connections)</li>
-      </ul>
+        <h3>Prerequisites</h3>
+        <ul>
+          <li><strong>Node.js</strong> (v14 or higher)</li>
+          <li>A <strong>MySQL or MariaDB</strong> server — local or remote</li>
+          <li>One MySQL server to store app data (users and saved connections)</li>
+        </ul>
 
-      <h3>Installation</h3>
-      <ol class="steps">
-        <li>
-          <strong>Clone the repository</strong>
-          <pre><code>git clone https://github.com/mohit31kumar/DB-MANAGER.git
-<span class="cm">cd DB-MANAGER</span></code></pre>
-        </li>
-        <li>
-          <strong>Install dependencies</strong>
-          <pre><code>npm install</code></pre>
-        </li>
-        <li>
-          <strong>Configure your environment</strong>
-          <pre><code>cp .env.example .env</code></pre>
-          <p>Edit <code>.env</code> with your settings — <code>SESSION_SECRET</code>, <code>APP_PORT</code>, and your internal MySQL credentials.</p>
-        </li>
-        <li>
-          <strong>Start the server</strong>
-          <pre><code>npm start</code></pre>
-        </li>
-      </ol>
+        <h3>Installation</h3>
+        <ol class="steps">
+          <li>
+            <strong>Clone the repository</strong>
+            <div class="code-block" data-code-block>
+              <Code
+                code={`git clone https://github.com/mohit31kumar/DB-MANAGER.git
+cd DB-MANAGER`}
+                lang={lang.bash}
+                theme="houston"
+              />
+              <button class="code-copy" type="button" data-copy data-label="Copy">
+                <Icon name="copy" size={13} />
+                Copy
+              </button>
+            </div>
+          </li>
+          <li>
+            <strong>Install dependencies</strong>
+            <div class="code-block" data-code-block>
+              <Code code="npm install" lang={lang.bash} theme="houston" />
+              <button class="code-copy" type="button" data-copy data-label="Copy">
+                <Icon name="copy" size={13} />
+                Copy
+              </button>
+            </div>
+          </li>
+          <li>
+            <strong>Configure your environment</strong>
+            <div class="code-block" data-code-block>
+              <Code code="cp .env.example .env" lang={lang.bash} theme="houston" />
+              <button class="code-copy" type="button" data-copy data-label="Copy">
+                <Icon name="copy" size={13} />
+                Copy
+              </button>
+            </div>
+            <p>
+              Edit <code>.env</code> with your settings — <code>SESSION_SECRET</code>,
+              <code>APP_PORT</code>, and your internal MySQL credentials.
+            </p>
+          </li>
+          <li>
+            <strong>Start the server</strong>
+            <div class="code-block" data-code-block>
+              <Code code="npm start" lang={lang.bash} theme="houston" />
+              <button class="code-copy" type="button" data-copy data-label="Copy">
+                <Icon name="copy" size={13} />
+                Copy
+              </button>
+            </div>
+          </li>
+        </ol>
 
-      <h3>First Run</h3>
-      <ol class="steps">
-        <li>Open <code>http://localhost:3000</code> in your browser</li>
-        <li>Create your account on the registration page</li>
-        <li>Add your first database connection — or paste a connection string</li>
-        <li>Start managing your databases!</li>
-      </ol>
+        <h3>First Run</h3>
+        <ol class="steps">
+          <li>Open <code>http://localhost:3000</code> in your browser</li>
+          <li>Create your account on the registration page</li>
+          <li>Add your first database connection — or paste a connection string</li>
+          <li>Start managing your databases!</li>
+        </ol>
 
-      <div class="callout">
-        <strong>Tip:</strong> On first run you are the admin user. Subsequent users register normally and manage their own connections.
-      </div>
-    </section>
+        <div class="callout">
+          <span class="ic"><Icon name="info" size={18} /></span>
+          <span>
+            <strong>Tip:</strong> On first run you are the admin user. Subsequent users register
+            normally and manage their own connections.
+          </span>
+        </div>
+      </section>
 
-    <section class="doc-section" id="connection-strings">
-      <h2>Connection Strings</h2>
-      <p>
-        Instead of filling every field, paste a connection string and click
-        <strong>Parse &amp; Fill</strong>. DB Manager recognizes three formats.
-      </p>
+      <section class="doc-section" id="connection-strings" data-reveal>
+        <h2>Connection Strings</h2>
+        <p>
+          Instead of filling every field, paste a connection string and click
+          <strong>Parse &amp; Fill</strong>. DB Manager recognizes three formats.
+        </p>
 
-      <div class="format-card">
-        <div class="label">URI format</div>
-        <pre><code>mysql://<span class="str">user:password@host:port/dbname</span></code></pre>
-        <pre><code>mysql://admin:mypassword@db.example.com:3306/mydb</code></pre>
-        <p>Add <code>?sslMode=require</code> for cloud databases.</p>
-      </div>
+        <div class="format-card">
+          <div class="label">URI format</div>
+          <div class="code-block" data-code-block>
+            <Code
+              code="mysql://user:password@host:port/dbname"
+              lang={lang.text}
+              theme="houston"
+            />
+            <button class="code-copy" type="button" data-copy data-label="Copy">
+              <Icon name="copy" size={13} />
+              Copy
+            </button>
+          </div>
+          <div class="code-block" data-code-block>
+            <Code
+              code="mysql://admin:mypassword@db.example.com:3306/mydb"
+              lang={lang.text}
+              theme="houston"
+            />
+            <button class="code-copy" type="button" data-copy data-label="Copy">
+              <Icon name="copy" size={13} />
+              Copy
+            </button>
+          </div>
+          <p>Add <code>?sslMode=require</code> for cloud databases.</p>
+        </div>
 
-      <div class="format-card">
-        <div class="label">JDBC format</div>
-        <pre><code>jdbc:mysql://host:port/dbname?user=<span class="str">...&amp;password=...&amp;sslMode=require</span></code></pre>
-      </div>
+        <div class="format-card">
+          <div class="label">JDBC format</div>
+          <div class="code-block" data-code-block>
+            <Code
+              code="jdbc:mysql://host:port/dbname?user=...&password=...&sslMode=require"
+              lang={lang.text}
+              theme="houston"
+            />
+            <button class="code-copy" type="button" data-copy data-label="Copy">
+              <Icon name="copy" size={13} />
+              Copy
+            </button>
+          </div>
+        </div>
 
-      <div class="format-card">
-        <div class="label">Simple format</div>
-        <pre><code><span class="str">user:password@host:port/dbname</span></code></pre>
-      </div>
+        <div class="format-card">
+          <div class="label">Simple format</div>
+          <div class="code-block" data-code-block>
+            <Code
+              code="user:password@host:port/dbname"
+              lang={lang.text}
+              theme="houston"
+            />
+            <button class="code-copy" type="button" data-copy data-label="Copy">
+              <Icon name="copy" size={13} />
+              Copy
+            </button>
+          </div>
+        </div>
 
-      <div class="callout">
-        <strong>Note:</strong> After parsing, you can hit <strong>Test Connection</strong> to verify the credentials before saving.
-      </div>
-    </section>
+        <div class="callout">
+          <span class="ic"><Icon name="info" size={18} /></span>
+          <span>
+            <strong>Note:</strong> After parsing, you can hit <strong>Test Connection</strong> to
+            verify the credentials before saving.
+          </span>
+        </div>
+      </section>
 
-    <section class="doc-section" id="configuration">
-      <h2>Configuration</h2>
-      <p>All configuration lives in the <code>.env</code> file at the project root.</p>
+      <section class="doc-section" id="configuration" data-reveal>
+        <h2>Configuration</h2>
+        <p>All configuration lives in the <code>.env</code> file at the project root.</p>
 
-      <pre><code>SESSION_SECRET=your-secret-key-here
+        <div class="code-block" data-code-block>
+          <Code
+            code={`SESSION_SECRET=your-secret-key-here
 APP_PORT=3000
 
-<span class="cm"># Internal MySQL database for app data</span>
+# Internal MySQL database for app data
 INTERNAL_DB_HOST=localhost
 INTERNAL_DB_PORT=3306
 INTERNAL_DB_USER=root
 INTERNAL_DB_PASSWORD=
 INTERNAL_DB_NAME=db_manager
-<span class="cm"># Set to true if your MySQL server requires SSL
-# (e.g. TiDB Cloud, AWS RDS)</span>
-INTERNAL_DB_SSL=false</code></pre>
+# Set to true if your MySQL server requires SSL
+# (e.g. TiDB Cloud, AWS RDS)
+INTERNAL_DB_SSL=false`}
+            lang={lang.env}
+            theme="houston"
+          />
+          <button class="code-copy" type="button" data-copy data-label="Copy">
+            <Icon name="copy" size={13} />
+            Copy
+          </button>
+        </div>
 
-      <h3>Environment variables</h3>
+        <h3>Environment variables</h3>
+        <ul>
+          <li><code>SESSION_SECRET</code> — secret key used to sign session cookies. Set a long, random value.</li>
+          <li><code>APP_PORT</code> — port the web server listens on (default <code>3000</code>).</li>
+          <li><code>INTERNAL_DB_HOST</code> / <code>INTERNAL_DB_PORT</code> — host and port of the MySQL server that stores app data.</li>
+          <li><code>INTERNAL_DB_USER</code> / <code>INTERNAL_DB_PASSWORD</code> — credentials for the internal MySQL user.</li>
+          <li><code>INTERNAL_DB_NAME</code> — database name for app data (default <code>db_manager</code>).</li>
+          <li><code>INTERNAL_DB_SSL</code> — set <code>true</code> when the internal MySQL server requires SSL.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="security" data-reveal>
+        <h2>Security</h2>
+        <p>DB Manager is designed to keep each user's saved connections private.</p>
+        <ul>
+          <li>Passwords are hashed with <strong>bcrypt</strong> — never stored in plain text.</li>
+          <li>Sessions are signed with <code>SESSION_SECRET</code> from your <code>.env</code>.</li>
+          <li>Connections are isolated per user; each account only sees the databases it added.</li>
+          <li>Optional <strong>SSL/TLS</strong> for encrypted connections to cloud databases.</li>
+        </ul>
+
+        <div class="callout">
+          <span class="ic"><Icon name="shield" size={18} /></span>
+          <span>
+            <strong>Before deploying publicly:</strong> set a long random
+            <code>SESSION_SECRET</code>, terminate TLS in front of the app, and keep the app
+            database on a restricted network.
+          </span>
+        </div>
+      </section>
+
+      <p class="docs-more">
+        <a class="btn btn-primary" href={base}>
+          Back to home
+          <Icon name="arrowRight" size={17} />
+        </a>
+      </p>
+    </div>
+
+    <nav class="docs-toc" data-toc aria-label="On this page">
+      <h2>On this page</h2>
       <ul>
-        <li><code>SESSION_SECRET</code> — secret key used to sign session cookies. Set a long, random value.</li>
-        <li><code>APP_PORT</code> — port the web server listens on (default <code>3000</code>).</li>
-        <li><code>INTERNAL_DB_HOST</code> / <code>INTERNAL_DB_PORT</code> — host and port of the MySQL server that stores app data.</li>
-        <li><code>INTERNAL_DB_USER</code> / <code>INTERNAL_DB_PASSWORD</code> — credentials for the internal MySQL user.</li>
-        <li><code>INTERNAL_DB_NAME</code> — database name for app data (default <code>db_manager</code>).</li>
-        <li><code>INTERNAL_DB_SSL</code> — set <code>true</code> when the internal MySQL server requires SSL.</li>
+        {
+          sections.map((s) => (
+            <li>
+              <a href={`#${s.id}`}>{s.label}</a>
+            </li>
+          ))
+        }
       </ul>
-    </section>
+    </nav>
   </div>
 </Layout>
+
+<style>
+  .docs-more {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+</style>
