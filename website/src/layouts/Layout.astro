@@ -1,5 +1,9 @@
 ---
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
 import '../styles/global.css';
+import '../styles/components.css';
+import '../styles/sections.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
@@ -12,26 +16,48 @@ const {
   title = 'DB Manager — Web-based MySQL Database Manager',
   description = 'A powerful web-based MySQL database manager. Paste a connection string, you\'re in. Browse, query, and manage your databases right from the browser.',
 } = Astro.props;
+
+// Read by nav.ts so the active-route check resolves correctly under a
+// base path such as /DB-MANAGER/ on GitHub Pages.
+const base = import.meta.env.BASE_URL;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://mohit31kumar.github.io');
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-base={base}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="keywords" content="MySQL, MariaDB, database manager, web-based, phpMyAdmin alternative, SQL editor" />
+    <meta name="keywords" content="MySQL, MariaDB, database manager, web-based, phpMyAdmin alternative, SQL editor, connection string" />
+    <meta name="author" content="Mohit Kumar" />
+    <link rel="canonical" href={canonical} />
+
+    <meta name="theme-color" content="#070b14" />
+    <meta name="color-scheme" content="dark" />
+
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <title>{title}</title>
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
   </head>
   <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <Header />
-    <main>
+    <main id="main">
       <slot />
     </main>
     <Footer />
+
+    <script>
+      import '../scripts/reveal.ts';
+      import '../scripts/spotlight.ts';
+      import '../scripts/nav.ts';
+      import '../scripts/code-copy.ts';
+    </script>
   </body>
 </html>

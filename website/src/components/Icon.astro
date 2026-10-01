@@ -1,0 +1,60 @@
+---
+// Single inline SVG sprite. Every icon shares one 24px grid and a 1.7px
+// stroke so feature/highlight grids read as a designed set rather than
+// mixed emoji. Referenced by name: <Icon name="plug" />.
+interface Props {
+  name: keyof typeof icons;
+  size?: number;
+  class?: string;
+}
+
+const icons = {
+  // features
+  plug: '<path d="M9 2v6M15 2v6M6 8h12v3a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8ZM12 17v5"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.8 3.8 9S14.5 18.3 12 21c-2.5-2.7-3.8-5.8-3.8-9S9.5 5.7 12 3Z"/>',
+  database: '<ellipse cx="12" cy="6" rx="7.5" ry="3.2"/><path d="M4.5 6v6c0 1.8 3.4 3.2 7.5 3.2s7.5-1.4 7.5-3.2V6M4.5 12v6c0 1.8 3.4 3.2 7.5 3.2s7.5-1.4 7.5-3.2v-6"/>',
+  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  keyboard: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7.5 14h9"/>',
+  download: '<path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',
+  layers: '<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>',
+  shield: '<path d="M12 2.5 4.5 5.5v6c0 4.6 3.2 8.7 7.5 10 4.3-1.3 7.5-5.4 7.5-10v-6Z"/><path d="m9 12 2 2 4-4"/>',
+  tools: '<path d="M14.7 6.3a4.5 4.5 0 0 0 5.9 5.9l-8.4 8.4a2.4 2.4 0 0 1-3.4-3.4Z"/><path d="m6.5 3.5 3 3M3.5 6.5l3 3"/><path d="M17.5 3.5 21 7l-3.5 3.5-3-3Z"/>',
+
+  // highlights
+  bolt: '<path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12l1-8.5Z"/>',
+  puzzle: '<path d="M9 3.5a2 2 0 0 1 4 0V5h3.5a1 1 0 0 1 1 1v3.5H19a2 2 0 0 1 0 4h-1.5V17a1 1 0 0 1-1 1H13v-1.5a2 2 0 0 0-4 0V18H5.5a1 1 0 0 1-1-1v-3.5H6a2 2 0 0 0 0-4h1.5V6a1 1 0 0 1 1-1H9Z"/>',
+  rocket: '<path d="M13.5 3.5c3 0 7 4 7 7L13 18l-3-3-2 4-1.5-1.5 4-2-3-3Z"/><path d="M9.5 9.5 7 7"/><circle cx="15" cy="8.5" r="1.4"/>',
+  feather: '<path d="M20 4c-6 0-11 3-11 8v5l-3 3M9 17c0-5 5-8 11-9"/><path d="M13 8v8"/>',
+
+  // ui + docs
+  arrowRight: '<path d="M4 12h15m0 0-6-6m6 6-6 6"/>',
+  arrowUpRight: '<path d="M7 17 17 7m0 0h-7m7 0v7"/>',
+  copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/>',
+  check: '<path d="m4.5 12.5 5 5 10-11"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  close: '<path d="m6 6 12 12M18 6 6 18"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8h.01"/>',
+  server: '<rect x="2.5" y="4" width="19" height="6.5" rx="2"/><rect x="2.5" y="13.5" width="19" height="6.5" rx="2"/><path d="M6.5 7.2h.01M6.5 16.8h.01"/>',
+  terminal: '<rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="m7 10 2.5 2.5L7 15M13 15.5h4"/>',
+  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  sparkles: '<path d="m12 3 1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8Z"/><path d="M18.5 15.5 19.4 18l2.5.9-2.5.9-.9 2.5-.9-2.5-2.5-.9 2.5-.9Z"/>',
+  github: '<path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12 12 0 0 0-6.2 0C6.8 2.3 5.7 2.6 5.7 2.6a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4.3 9c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/>',
+} as const;
+
+const { name, size = 20, class: className } = Astro.props;
+---
+
+<svg
+  class={className}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.7"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  set:html={icons[name]}
+/>
