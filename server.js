@@ -44,9 +44,18 @@ app.use(session({
   }
 }));
 
+app.use('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 app.use(async (req, res, next) => {
   const isAuthPage = req.path === '/login' || req.path === '/register';
   const isStatic = req.path.startsWith('/css') || req.path.startsWith('/js');
+  const isHealth = req.path === '/health';
+
+  if (isHealth) {
+    return next();
+  }
 
   if (!isAuthPage && !isStatic && (!req.session || !req.session.user)) {
     if ((await store.getUserCount()) === 0) {
