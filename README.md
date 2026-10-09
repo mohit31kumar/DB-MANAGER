@@ -247,14 +247,6 @@ Yes — add as many connections as you need and switch between them from the nav
 **Is a local MySQL server required?**
 Only one MySQL server is needed to store app data (users and connections). The databases you manage can be anywhere — local or remote.
 
-## Roadmap
-
-- [x] Add captured UI screenshots to `docs/screenshots/`
-- [ ] Saved query execution history (server-side)
-- [ ] Visual explain plan viewer
-- [ ] Schema export / diff
-- [ ] Dark theme toggle
-
 ## Contributing
 
 Contributions are welcome! Feel free to open an [issue](https://github.com/mohit31kumar/DB-MANAGER/issues) or submit a pull request.
