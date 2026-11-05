@@ -57,10 +57,19 @@ async function ensureSchema() {
       password TEXT NOT NULL,
       database_name VARCHAR(255) DEFAULT '',
       \`ssl\` TINYINT(1) DEFAULT 0,
+      db_type VARCHAR(20) DEFAULT 'mysql',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
+
+  try {
+    await pool.query(`ALTER TABLE connections ADD COLUMN db_type VARCHAR(20) DEFAULT 'mysql'`);
+  } catch (err) {
+    if (err.code !== 'ER_DUP_FIELDNAME' && !err.message.includes('Duplicate column name')) {
+      throw err;
+    }
+  }
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS saved_queries (
@@ -175,9 +184,10 @@ function verifyPassword(plainPassword, hash) {
 }
 
 function addConnection(userId, data) {
+  const dbType = data.db_type || detectDbType(data.host, data.database) || 'mysql';
   return pool.query(
-    'INSERT INTO connections (user_id, name, host, port, username, password, database_name, `ssl`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-    [userId, data.name, data.host, data.port || 3306, data.user, data.password, data.database || '', data.ssl ? 1 : 0]
+    'INSERT INTO connections (user_id, name, host, port, username, password, database_name, `ssl`, db_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [userId, data.name, data.host, data.port || (dbType === 'postgres' ? 5432 : 3306), data.user, data.password, data.database || '', data.ssl ? 1 : 0, dbType]
   ).then(([result]) => result.insertId);
 }
 
@@ -190,9 +200,10 @@ function getConnectionById(userId, connId) {
 }
 
 function updateConnection(userId, connId, data) {
+  const dbType = data.db_type || 'mysql';
   return pool.query(
-    'UPDATE connections SET name = ?, host = ?, port = ?, username = ?, password = ?, database_name = ?, `ssl` = ? WHERE id = ? AND user_id = ?',
-    [data.name, data.host, data.port || 3306, data.user, data.password, data.database || '', data.ssl ? 1 : 0, connId, userId]
+    'UPDATE connections SET name = ?, host = ?, port = ?, username = ?, password = ?, database_name = ?, `ssl` = ?, db_type = ? WHERE id = ? AND user_id = ?',
+    [data.name, data.host, data.port || (dbType === 'postgres' ? 5432 : 3306), data.user, data.password, data.database || '', data.ssl ? 1 : 0, dbType, connId, userId]
   );
 }
 
@@ -212,10 +223,73 @@ function deleteSavedQuery(userId, queryId) {
   return pool.query('DELETE FROM saved_queries WHERE id = ? AND user_id = ?', [queryId, userId]);
 }
 
+function parseConnectionString(str) {
+  if (!str) return null;
+  str = str.trim();
+
+  const parseParams = (query) => {
+    const params = {};
+    if (!query) return params;
+    query.split('&').forEach(p => { const eq = p.indexOf('='); if (eq !== -1) { params[p.slice(0, eq)] = decodeURIComponent(p.slice(eq + 1)); } });
+    return params;
+  };
+
+  // jdbc:postgresql:// or jdbc:mysql://
+  const jdbcMatch = str.match(/^jdbc:(postgresql|postgres|mysql):\/\/([^:/]+):?(\d+)?\/([^?]*)(?:\?(.*))?$/i);
+  if (jdbcMatch) {
+    const type = jdbcMatch[1].toLowerCase() === 'mysql' ? 'mysql' : 'postgres';
+    const params = parseParams(jdbcMatch[5]);
+    return {
+      db_type: type,
+      user: params.user || '',
+      password: params.password || '',
+      host: jdbcMatch[2],
+      port: jdbcMatch[3] || (type === 'postgres' ? '5432' : '3306'),
+      database: decodeURIComponent(jdbcMatch[4] || ''),
+      ssl: !!(params.sslmode && params.sslmode !== 'disable')
+    };
+  }
+
+  // postgres:// / postgresql:// / mysql://
+  const uriMatch = str.match(/^(postgresql|postgres|mysql):\/\/(?:([^:@]+)(?::([^@]*))?@)?([^:/]+):?(\d+)?\/([^?]*)(?:\?(.*))?$/i);
+  if (uriMatch) {
+    const type = uriMatch[1].toLowerCase() === 'mysql' ? 'mysql' : 'postgres';
+    const params = parseParams(uriMatch[7]);
+    return {
+      db_type: type,
+      user: decodeURIComponent(uriMatch[2] || ''),
+      password: decodeURIComponent(uriMatch[3] || ''),
+      host: uriMatch[4],
+      port: uriMatch[5] || (type === 'postgres' ? '5432' : '3306'),
+      database: decodeURIComponent(uriMatch[6] || ''),
+      ssl: !!(params.sslmode && params.sslmode !== 'disable')
+    };
+  }
+
+  // simple user:pass@host:port/db
+  const simpleMatch = str.match(/^([^:@]+):([^@]+)@([^:/]+):?(\d+)?\/(.+)$/);
+  if (simpleMatch) return {
+    db_type: 'mysql',
+    user: decodeURIComponent(simpleMatch[1]),
+    password: decodeURIComponent(simpleMatch[2]),
+    host: simpleMatch[3],
+    port: simpleMatch[4] || '3306',
+    database: decodeURIComponent(simpleMatch[5]),
+    ssl: false
+  };
+
+  return null;
+}
+
+function detectDbType(host, database) {
+  return 'mysql';
+}
+
 module.exports = {
   initialize,
   testInternalConnection,
   getUserCount, createUser, getUser, getUserById, verifyPassword,
   addConnection, getUserConnections, getConnectionById, updateConnection, deleteConnection,
-  saveQuery, getSavedQueries, deleteSavedQuery
+  saveQuery, getSavedQueries, deleteSavedQuery,
+  parseConnectionString, detectDbType
 };

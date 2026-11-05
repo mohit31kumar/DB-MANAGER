@@ -34,9 +34,9 @@ const lang: Record<string, string> = { bash: 'bash', env: 'dotenv', text: 'text'
 
         <h3>Prerequisites</h3>
         <ul>
-          <li><strong>Node.js</strong> (v14 or higher)</li>
-          <li>A <strong>MySQL or MariaDB</strong> server — local or remote</li>
-          <li>One MySQL server to store app data (users and saved connections)</li>
+        <li><strong>Node.js</strong> (v14 or higher)</li>
+        <li>A <strong>MySQL/MariaDB or PostgreSQL</strong> server — local or remote</li>
+        <li>One MySQL server to store app data (users and saved connections)</li>
         </ul>
 
         <h3>Installation</h3>
@@ -113,7 +113,8 @@ cd DB-MANAGER`}
         <h2>Connection Strings</h2>
         <p>
           Instead of filling every field, paste a connection string and click
-          <strong>Parse &amp; Fill</strong>. DB Manager recognizes three formats.
+          <strong>Parse &amp; Fill</strong>. DB Manager recognizes MySQL/MariaDB and PostgreSQL
+          formats.
         </p>
 
         <div class="format-card">
@@ -173,11 +174,41 @@ cd DB-MANAGER`}
           </div>
         </div>
 
+        <div class="format-card">
+          <div class="label">PostgreSQL URI format</div>
+          <div class="code-block" data-code-block>
+            <Code
+              code="postgres://user:password@host:port/dbname
+postgresql://user:password@host:port/dbname"
+              lang={lang.text}
+              theme="houston"
+            />
+            <button class="code-copy" type="button" data-copy data-label="Copy">
+              <Icon name="copy" size={13} />
+              Copy
+            </button>
+          </div>
+          <div class="code-block" data-code-block>
+            <Code
+              code="postgres://admin:mypassword@db.example.com:5432/mydb"
+              lang={lang.text}
+              theme="houston"
+            />
+            <button class="code-copy" type="button" data-copy data-label="Copy">
+              <Icon name="copy" size={13} />
+              Copy
+            </button>
+          </div>
+          <p>Add <code>?sslmode=require</code> for cloud databases.</p>
+        </div>
+
         <div class="callout">
           <span class="ic"><Icon name="info" size={18} /></span>
           <span>
             <strong>Note:</strong> After parsing, you can hit <strong>Test Connection</strong> to
-            verify the credentials before saving.
+            verify the credentials before saving. For PostgreSQL connections, select
+            <strong>PostgreSQL</strong> as the database type — it is detected automatically when you
+            paste a <code>postgres://</code> or <code>postgresql://</code> string.
           </span>
         </div>
       </section>

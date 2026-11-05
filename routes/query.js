@@ -3,17 +3,30 @@ const router = express.Router();
 const { format } = require('sql-formatter');
 
 router.use((req, res, next) => {
-  if (!req.pool) return res.redirect('/');
+  if (!req.adapter) return res.redirect('/');
   next();
 });
 
 router.get('/', async (req, res) => {
   try {
-    const [databases] = await req.pool.query('SHOW DATABASES');
-    const dbList = databases.map(r => Object.values(r)[0]);
-    res.render('query', { user: req.session.user, databases: dbList, query: '', results: null, error: null });
+    const databases = await req.adapter.getDatabases();
+    res.render('query', {
+      user: req.session.user,
+      databases,
+      query: '',
+      results: null,
+      error: null,
+      dbType: req.connConfig ? req.connConfig.db_type : null
+    });
   } catch (err) {
-    res.render('query', { user: req.session.user, databases: [], query: '', results: null, error: err.message });
+    res.render('query', {
+      user: req.session.user,
+      databases: [],
+      query: '',
+      results: null,
+      error: err.message,
+      dbType: req.connConfig ? req.connConfig.db_type : null
+    });
   }
 });
 
@@ -24,31 +37,25 @@ router.post('/execute', async (req, res) => {
   }
 
   try {
-    if (database) {
-      await req.pool.query(`USE \`${database}\``);
+    if (database && req.connConfig && req.connConfig.db_type === 'mysql') {
+      await req.adapter.runQuery(`USE \`${database.replace(/`/g, '``')}\``);
     }
 
     const startTime = Date.now();
-    let queryToRun = sqlQuery;
-    if (disableFK) {
-      await req.pool.query('SET FOREIGN_KEY_CHECKS = 0');
-    }
-    const [rows, fields] = await req.pool.query(queryToRun);
-    if (disableFK) {
-      await req.pool.query('SET FOREIGN_KEY_CHECKS = 1');
-    }
+    const result = await req.adapter.runQuery(sqlQuery);
     const elapsed = Date.now() - startTime;
 
-    if (Array.isArray(rows)) {
-      const columns = rows.length > 0 ? Object.keys(rows[0]) : (fields ? fields.map(f => f.name) : []);
-      res.json({ results: { columns, rows, affectedRows: rows.length, elapsed }, error: null });
-    } else {
-      res.json({ results: { columns: [], rows: [], affectedRows: rows.affectedRows, elapsed, message: `Query OK. ${rows.affectedRows} row(s) affected.` }, error: null });
-    }
+    res.json({
+      results: {
+        columns: result.columns,
+        rows: result.rows,
+        affectedRows: result.affectedRows,
+        elapsed,
+        message: result.message || `Query OK. ${result.affectedRows} row(s) affected.`
+      },
+      error: null
+    });
   } catch (err) {
-    if (disableFK) {
-      await req.pool.query('SET FOREIGN_KEY_CHECKS = 1').catch(() => {});
-    }
     res.json({ error: err.message, results: null });
   }
 });
@@ -56,7 +63,8 @@ router.post('/execute', async (req, res) => {
 router.post('/format', (req, res) => {
   const { query: sqlQuery } = req.body;
   try {
-    const formatted = format(sqlQuery, { language: 'mysql', keywordCase: 'upper' });
+    const language = (req.connConfig && req.connConfig.db_type === 'postgres') ? 'postgresql' : 'mysql';
+    const formatted = format(sqlQuery, { language, keywordCase: 'upper' });
     res.json({ formatted });
   } catch (err) {
     res.json({ error: err.message });
@@ -68,20 +76,22 @@ router.post('/export', async (req, res) => {
   if (!sqlQuery) return res.status(400).send('No query provided.');
 
   try {
-    if (database) {
-      await req.pool.query(`USE \`${database}\``);
+    if (database && req.connConfig && req.connConfig.db_type === 'mysql') {
+      await req.adapter.runQuery(`USE \`${database.replace(/`/g, '``')}\``);
     }
-    const [rows] = await req.pool.query(sqlQuery);
+    const result = await req.adapter.runQuery(sqlQuery);
 
-    if (!Array.isArray(rows) || rows.length === 0) {
+    if (!result.rows || result.rows.length === 0) {
       return res.status(404).send('No data to export.');
     }
 
-    const columns = Object.keys(rows[0]);
+    const columns = result.columns;
+    const quoteId = req.adapter.quoteId.bind(req.adapter);
+    const escapeValue = req.adapter.escapeValue.bind(req.adapter);
 
     if (exportFormat === 'csv') {
       let csv = columns.join(',') + '\n';
-      rows.forEach(row => {
+      result.rows.forEach(row => {
         csv += columns.map(col => {
           const val = row[col];
           if (val === null) return '';
@@ -99,27 +109,22 @@ router.post('/export', async (req, res) => {
     if (exportFormat === 'json') {
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Content-Disposition', 'attachment; filename=query_results.json');
-      return res.send(JSON.stringify(rows, null, 2));
+      return res.send(JSON.stringify(result.rows, null, 2));
     }
 
     if (exportFormat === 'sql') {
       let tableName = 'table_name';
-      const fromMatch = sqlQuery.match(/FROM\s+`?(\w+)`?/i);
-      const intoMatch = sqlQuery.match(/INTO\s+`?(\w+)`?/i);
-      const updateMatch = sqlQuery.match(/UPDATE\s+`?(\w+)`?/i);
+      const fromMatch = sqlQuery.match(/FROM\s+"?(\w+)"?/i);
+      const intoMatch = sqlQuery.match(/INTO\s+"?(\w+)"?/i);
+      const updateMatch = sqlQuery.match(/UPDATE\s+"?(\w+)"?/i);
       if (fromMatch) tableName = fromMatch[1];
       else if (intoMatch) tableName = intoMatch[1];
       else if (updateMatch) tableName = updateMatch[1];
 
       let sql = '';
-      rows.forEach(row => {
-        const vals = columns.map(col => {
-          const val = row[col];
-          if (val === null) return 'NULL';
-          if (typeof val === 'number') return val;
-          return "'" + String(val).replace(/'/g, "\\'") + "'";
-        });
-        sql += `INSERT INTO \`${tableName}\` (${columns.map(c => '`' + c + '`').join(', ')}) VALUES (${vals.join(', ')});\n`;
+      result.rows.forEach(row => {
+        const vals = columns.map(col => escapeValue(row[col]));
+        sql += `INSERT INTO ${quoteId(tableName)} (${columns.map(c => quoteId(c)).join(', ')}) VALUES (${vals.join(', ')});\n`;
       });
       res.setHeader('Content-Type', 'text/sql');
       res.setHeader('Content-Disposition', `attachment; filename=${tableName}_results.sql`);

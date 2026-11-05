@@ -16,7 +16,7 @@ async function start() {
 start().then(() => {
   const app = express();
   const PORT = process.env.APP_PORT || 3000;
-  const { getPool } = require('./db');
+  const { getAdapter, removePool, removeAllUserPools } = require('./db');
 
   const authRoutes = require('./routes/auth');
   const connectionsRoutes = require('./routes/connections');
@@ -76,16 +76,18 @@ app.use(async (req, res, next) => {
     if (req.session.connId) {
       const activeConn = await store.getConnectionById(userId, req.session.connId);
       req.connId = req.session.connId;
-      req.pool = activeConn ? await getPool(userId, req.session.connId) : null;
+      req.adapter = activeConn ? await getAdapter(userId, req.session.connId) : null;
       req.connConfig = activeConn || null;
       res.locals.connId = req.connId;
       res.locals.connConfig = req.connConfig;
+      res.locals.dbType = activeConn ? activeConn.db_type : null;
     } else {
       req.connId = null;
-      req.pool = null;
+      req.adapter = null;
       req.connConfig = null;
       res.locals.connId = null;
       res.locals.connConfig = null;
+      res.locals.dbType = null;
     }
   }
 
