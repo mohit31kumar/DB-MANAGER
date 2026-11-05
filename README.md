@@ -1,6 +1,6 @@
 # DB Manager
 
-**DB Manager** is a powerful, web-based database management tool built with Node.js. Connect to any MySQL/MariaDB database (local or remote) by simply pasting a connection string, then browse, manage, and query your data right from the browser — no database client installation required.
+**DB Manager** is a powerful, web-based database management tool built with Node.js. Connect to any MySQL/MariaDB or PostgreSQL database (local or remote) by simply pasting a connection string, then browse, manage, and query your data right from the browser — no database client installation required.
 
 - ✅ **Paste a connection string, you're in** — no tedious setup
 - ✅ **Manage remote databases** from anywhere, in the browser
@@ -10,6 +10,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)
@@ -44,9 +45,9 @@
 ## Features
 
 ### Multi-Connection Support
-- Connect to multiple MySQL/MariaDB databases simultaneously
+- Connect to multiple MySQL/MariaDB and PostgreSQL databases simultaneously
 - Add, edit, delete database connections
-- Connection string auto-parse (supports `mysql://`, JDBC, and simple formats)
+- Connection string auto-parse (supports `mysql://`, `postgres://`/`postgresql://`, JDBC, and simple formats)
 - SSL/TLS auto-detection for cloud databases (TiDB Cloud, AWS RDS, Google Cloud SQL)
 - Per-user isolated connections
 
@@ -119,10 +120,28 @@ With SSL (cloud databases):
 mysql://user:password@host:port/dbname?sslMode=require
 ```
 
+### PostgreSQL URI format
+
+```
+postgres://user:password@host:port/dbname
+postgresql://user:password@host:port/dbname
+```
+
+```bash
+postgres://admin:mypassword@db.example.com:5432/mydb
+```
+
+With SSL:
+
+```
+postgres://user:password@host:port/dbname?sslmode=require
+```
+
 ### JDBC format
 
 ```
 jdbc:mysql://host:port/dbname?user=...&password=...&sslMode=require
+jdbc:postgresql://host:port/dbname?user=...&password=...&sslmode=require
 ```
 
 ### Simple format
@@ -137,7 +156,7 @@ Paste any of these into the connection form, click **Parse & Fill**, and the fie
 
 ### Prerequisites
 - Node.js (v14 or higher)
-- MySQL/MariaDB server (local or remote)
+- MySQL/MariaDB or PostgreSQL server (local or remote)
 
 ### Installation
 
@@ -196,21 +215,26 @@ flowchart TD
     Express --> Import[Import Routes\nSQL / CSV]
     Auth --> Store[(Internal MySQL\nusers · connections)]
     Conn --> Store
-    DB --> Pool{Connection Pools}
-    Table --> Pool
-    Query --> Pool
-    Import --> Pool
-    Pool -->|mysql2| Remote[(User Databases\nMySQL / MariaDB)]
+    DB --> Adapter{DB Adapters}
+    Table --> Adapter
+    Query --> Adapter
+    Import --> Adapter
+    Adapter -->|mysql2 / pg| Remote[(User Databases\nMySQL / MariaDB · PostgreSQL)]
+    Store -->|mysql2| Internal[(Internal MySQL)]
 ```
 
-Routes in `routes/` talk to the user's MySQL databases through per-connection pools managed by `db.js`, while application data (users and saved connections) is stored in the internal `db_manager` database via `store.js`.
+Routes in `routes/` talk to the user's databases through the DB adapter layer (`db/adapter.js`, `db/mysql-adapter.js`, `db/postgres-adapter.js`), while application data (users and saved connections) is stored in the internal `db_manager` database via `store.js`.
 
 ## Project Structure
 
 ```
 db-manager/
 ├── server.js              # Express app entry point
-├── db.js                  # MySQL connection pool manager for user connections
+├── db/                    # DB adapters (mysql2 for MySQL, pg for PostgreSQL)
+│   ├── adapter.js         # Common adapter interface
+│   ├── index.js           # Adapter factory, connection pools, testConnection
+│   ├── mysql-adapter.js   # MySQL/MariaDB implementation
+│   └── postgres-adapter.js # PostgreSQL implementation
 ├── store.js               # MySQL store (users, connections, saved queries)
 ├── routes/
 │   ├── auth.js            # Login/register/logout
@@ -244,8 +268,11 @@ Make sure the format is one of `mysql://user:pass@host:port/db`, `jdbc:mysql://.
 **Can I connect to multiple databases at once?**
 Yes — add as many connections as you need and switch between them from the navbar dropdown.
 
+**Can I connect to PostgreSQL databases too?**
+Yes. PostgreSQL is fully supported with the same feature set as MySQL/MariaDB: browse databases/tables, structure, CRUD rows, SQL query editor, and import/export. Just select **PostgreSQL** as the database type when adding a connection (or paste a `postgres://`/`postgresql://` connection string and it's detected automatically).
+
 **Is a local MySQL server required?**
-Only one MySQL server is needed to store app data (users and connections). The databases you manage can be anywhere — local or remote.
+Only one MySQL server is needed to store app data (users and connections). The databases you manage can be anywhere — local or remote — and can be MySQL/MariaDB or PostgreSQL.
 
 ## Contributing
 
@@ -256,7 +283,7 @@ Contributions are welcome! Feel free to open an [issue](https://github.com/mohit
 | Component | Technology |
 |-----------|------------|
 | Backend | Node.js + Express |
-| Database Driver | mysql2 (with promises) |
+| Database Driver | mysql2 (MySQL/MariaDB), pg (PostgreSQL) |
 | User Storage | MySQL |
 | Templating | EJS |
 | Frontend | Bootstrap 5 + CodeMirror |

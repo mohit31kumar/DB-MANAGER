@@ -35,6 +35,13 @@
           <label class="form-label">Connection Name</label>
           <input type="text" class="form-control" name="name" required placeholder="e.g. Production DB" id="connName">
         </div>
+        <div class="col-md-2">
+          <label class="form-label">Database Type</label>
+          <select class="form-select" name="db_type" id="connType">
+            <option value="mysql">MySQL / MariaDB</option>
+            <option value="postgres">PostgreSQL</option>
+          </select>
+        </div>
         <div class="col-md-4">
           <label class="form-label">Host</label>
           <input type="text" class="form-control" name="host" required placeholder="e.g. 192.168.1.100" id="connHost">
@@ -76,34 +83,45 @@
 <script>
 function parseConnectionString(str) {
   str = str.trim();
-  const jdbcMatch = str.match(/^jdbc:mysql:\/\/([^:/]+):?(\d+)?\/([^?]*)(?:\?(.*))?$/);
+  const jdbcMatch = str.match(/^jdbc:(postgresql|postgres|mysql):\/\/([^:/]+):?(\d+)?\/([^?]*)(?:\?(.*))?$/i);
   if (jdbcMatch) {
+    const type = jdbcMatch[1].toLowerCase() === 'mysql' ? 'mysql' : 'postgres';
     const params = {};
-    if (jdbcMatch[4]) jdbcMatch[4].split('&').forEach(p => { const [k, v] = p.split('='); if (k && v) params[k] = decodeURIComponent(v); });
-    return { host: jdbcMatch[1], port: jdbcMatch[2] || '3306', database: jdbcMatch[3] || '', user: params.user || '', password: params.password || '', ssl: !!(params.sslMode && params.sslMode !== 'disabled') };
+    if (jdbcMatch[5]) jdbcMatch[5].split('&').forEach(p => { const [k, v] = p.split('='); if (k && v) params[k] = decodeURIComponent(v); });
+    return { db_type: type, host: jdbcMatch[2], port: jdbcMatch[3] || (type === 'postgres' ? '5432' : '3306'), database: decodeURIComponent(jdbcMatch[4] || ''), user: params.user || '', password: params.password || '', ssl: !!(params.sslmode && params.sslmode !== 'disabled') };
   }
-  const uriMatch = str.match(/^(?:mysql:\/\/)?(?:([^:@]+)(?::([^@]*))?@)?([^:/]+):?(\d+)?\/([^?]*)(?:\?(.*))?$/);
+  const uriMatch = str.match(/^(postgresql|postgres|mysql):\/\/(?:([^:@]+)(?::([^@]*))?@)?([^:/]+):?(\d+)?\/([^?]*)(?:\?(.*))?$/i);
   if (uriMatch) {
+    const type = uriMatch[1].toLowerCase() === 'mysql' ? 'mysql' : 'postgres';
     const params = {};
-    if (uriMatch[6]) uriMatch[6].split('&').forEach(p => { const [k, v] = p.split('='); if (k && v) params[k] = decodeURIComponent(v); });
-    return { user: decodeURIComponent(uriMatch[1] || ''), password: decodeURIComponent(uriMatch[2] || ''), host: uriMatch[3] || '', port: uriMatch[4] || '3306', database: decodeURIComponent(uriMatch[5] || ''), ssl: !!(params.sslMode && params.sslMode !== 'disabled') };
+    if (uriMatch[7]) uriMatch[7].split('&').forEach(p => { const [k, v] = p.split('='); if (k && v) params[k] = decodeURIComponent(v); });
+    return { db_type: type, user: decodeURIComponent(uriMatch[2] || ''), password: decodeURIComponent(uriMatch[3] || ''), host: uriMatch[4] || '', port: uriMatch[5] || (type === 'postgres' ? '5432' : '3306'), database: decodeURIComponent(uriMatch[6] || ''), ssl: !!(params.sslmode && params.sslmode !== 'disabled') };
   }
   const simpleMatch = str.match(/^([^:@]+):([^@]+)@([^:/]+):?(\d+)?\/(.+)$/);
-  if (simpleMatch) return { user: decodeURIComponent(simpleMatch[1]), password: decodeURIComponent(simpleMatch[2]), host: simpleMatch[3], port: simpleMatch[4] || '3306', database: decodeURIComponent(simpleMatch[5]), ssl: false };
+  if (simpleMatch) return { db_type: 'mysql', user: decodeURIComponent(simpleMatch[1]), password: decodeURIComponent(simpleMatch[2]), host: simpleMatch[3], port: simpleMatch[4] || '3306', database: decodeURIComponent(simpleMatch[5]), ssl: false };
   return null;
 }
+
+function setDefaultPort() {
+  const type = document.getElementById('connType').value;
+  const portInput = document.getElementById('connPort');
+  if (!portInput.value) portInput.value = type === 'postgres' ? '5432' : '3306';
+}
+
+document.getElementById('connType').addEventListener('change', setDefaultPort);
 
 document.getElementById('parseBtn').addEventListener('click', function() {
   const result = parseConnectionString(document.getElementById('connString').value);
   if (!result) { alert('Could not parse connection string.'); return; }
+  document.getElementById('connType').value = result.db_type || 'mysql';
   document.getElementById('connHost').value = result.host || '';
-  document.getElementById('connPort').value = result.port || '3306';
+  document.getElementById('connPort').value = result.port || (result.db_type === 'postgres' ? '5432' : '3306');
   document.getElementById('connUser').value = result.user || '';
   document.getElementById('connPass').value = result.password || '';
   document.getElementById('connDb').value = result.database || '';
   document.getElementById('connSsl').checked = !!result.ssl;
   if (result.host && !document.getElementById('connName').value) document.getElementById('connName').value = result.host.replace(/[^a-zA-Z0-9]/g, ' ').trim();
-  const div = document.getElementById('testResult'); div.className = 'mt-3 alert alert-success'; div.textContent = 'Fields auto-filled.' + (result.ssl ? ' SSL auto-enabled.' : ''); div.classList.remove('d-none');
+  const div = document.getElementById('testResult'); div.className = 'mt-3 alert alert-success'; div.textContent = 'Fields auto-filled.' + (result.ssl ? ' SSL auto-enabled.' : '') + (result.db_type === 'postgres' ? ' PostgreSQL detected.' : ''); div.classList.remove('d-none');
 });
 
 document.getElementById('testBtn').addEventListener('click', async function() {

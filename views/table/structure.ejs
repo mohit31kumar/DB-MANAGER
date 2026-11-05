@@ -86,40 +86,42 @@
     <h6 class="mb-2 mt-4">Table Operations</h6>
     <div class="card mb-3">
       <div class="card-body">
-        <div class="row g-3 align-items-end">
-          <div class="col-md-4">
-            <label class="form-label">Rename Table</label>
-            <form method="POST" action="/table/<%= db %>/<%= table %>/structure/rename" class="input-group input-group-sm">
-              <input type="text" class="form-control" name="new_name" value="<%= table %>" required>
-              <button type="submit" class="btn btn-outline-primary">Rename</button>
-            </form>
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label">Rename Table</label>
+              <form method="POST" action="/table/<%= db %>/<%= table %>/structure/rename" class="input-group input-group-sm">
+                <input type="text" class="form-control" name="new_name" value="<%= table %>" required>
+                <button type="submit" class="btn btn-outline-primary">Rename</button>
+              </form>
+            </div>
+            <% if (dbType === 'mysql') { %>
+            <div class="col-md-4">
+              <label class="form-label">Change Engine</label>
+              <form method="POST" action="/table/<%= db %>/<%= table %>/structure/change-engine" class="input-group input-group-sm">
+                <select class="form-select" name="engine">
+                  <option value="InnoDB">InnoDB</option>
+                  <option value="MyISAM">MyISAM</option>
+                  <option value="MEMORY">MEMORY</option>
+                  <option value="ARCHIVE">ARCHIVE</option>
+                  <option value="CSV">CSV</option>
+                </select>
+                <button type="submit" class="btn btn-outline-primary">Apply</button>
+              </form>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Change Collation</label>
+              <form method="POST" action="/table/<%= db %>/<%= table %>/structure/change-collation" class="input-group input-group-sm">
+                <select class="form-select" name="collation">
+                  <option value="utf8mb4_general_ci">utf8mb4_general_ci</option>
+                  <option value="utf8mb4_unicode_ci">utf8mb4_unicode_ci</option>
+                  <option value="utf8_general_ci">utf8_general_ci</option>
+                  <option value="latin1_swedish_ci">latin1_swedish_ci</option>
+                </select>
+                <button type="submit" class="btn btn-outline-primary">Apply</button>
+              </form>
+            </div>
+            <% } %>
           </div>
-          <div class="col-md-4">
-            <label class="form-label">Change Engine</label>
-            <form method="POST" action="/table/<%= db %>/<%= table %>/structure/change-engine" class="input-group input-group-sm">
-              <select class="form-select" name="engine">
-                <option value="InnoDB">InnoDB</option>
-                <option value="MyISAM">MyISAM</option>
-                <option value="MEMORY">MEMORY</option>
-                <option value="ARCHIVE">ARCHIVE</option>
-                <option value="CSV">CSV</option>
-              </select>
-              <button type="submit" class="btn btn-outline-primary">Apply</button>
-            </form>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Change Collation</label>
-            <form method="POST" action="/table/<%= db %>/<%= table %>/structure/change-collation" class="input-group input-group-sm">
-              <select class="form-select" name="collation">
-                <option value="utf8mb4_general_ci">utf8mb4_general_ci</option>
-                <option value="utf8mb4_unicode_ci">utf8mb4_unicode_ci</option>
-                <option value="utf8_general_ci">utf8_general_ci</option>
-                <option value="latin1_swedish_ci">latin1_swedish_ci</option>
-              </select>
-              <button type="submit" class="btn btn-outline-primary">Apply</button>
-            </form>
-          </div>
-        </div>
         <hr>
         <div class="d-flex gap-2">
           <form method="POST" action="/table/<%= db %>/<%= table %>/truncate" class="d-inline" onsubmit="return confirm('TRUNCATE this table? All data will be deleted!')">

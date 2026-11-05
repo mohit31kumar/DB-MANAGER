@@ -22,13 +22,14 @@ router.get('/add', (req, res) => {
 });
 
 router.post('/add', async (req, res) => {
-  const { name, host, port, user: dbUser, password, database, ssl } = req.body;
+  const { name, host, port, user: dbUser, password, database, ssl, db_type } = req.body;
   if (!name || !host || !dbUser) {
     return res.render('add-connection', { user: req.session.user, error: 'Name, host, and username are required.', welcome: false });
   }
   const userId = req.session.user.id;
   const connId = await store.addConnection(userId, {
-    name, host, port: parseInt(port) || 3306, user: dbUser, password, database: database || '', ssl: ssl === 'on'
+    name, host, port: parseInt(port) || (db_type === 'postgres' ? 5432 : 3306), user: dbUser, password,
+    database: database || '', ssl: ssl === 'on', db_type: db_type || 'mysql'
   });
   if (!req.session.connId) {
     req.session.connId = connId;
@@ -44,12 +45,13 @@ router.get('/:id/edit', async (req, res) => {
 
 router.post('/:id/edit', async (req, res) => {
   const connId = parseInt(req.params.id);
-  const { name, host, port, user: dbUser, password, database, ssl } = req.body;
+  const { name, host, port, user: dbUser, password, database, ssl, db_type } = req.body;
   const userId = req.session.user.id;
   const existing = await store.getConnectionById(userId, connId);
   if (!existing) return res.redirect('/connections');
   await store.updateConnection(userId, connId, {
-    name, host, port: parseInt(port) || 3306, user: dbUser, password, database: database || '', ssl: ssl === 'on'
+    name, host, port: parseInt(port) || (db_type === 'postgres' ? 5432 : 3306), user: dbUser, password,
+    database: database || '', ssl: ssl === 'on', db_type: db_type || 'mysql'
   });
   removePool(userId, connId);
   res.redirect('/connections');
@@ -77,9 +79,9 @@ router.post('/:id/activate', async (req, res) => {
 });
 
 router.post('/test', async (req, res) => {
-  const { host, port, user: dbUser, password, database, ssl } = req.body;
+  const { host, port, user: dbUser, password, database, ssl, db_type } = req.body;
   try {
-    const result = await testConnection({ host, port, username: dbUser, password, database, ssl });
+    const result = await testConnection({ host, port, username: dbUser, password, database, ssl, db_type });
     const msg = result.note || (result.ssl ? 'Connection successful (SSL enabled).' : 'Connection successful!');
     res.json({ success: true, message: msg });
   } catch (err) {

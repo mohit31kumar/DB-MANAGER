@@ -9,12 +9,12 @@ const features = [
   {
     icon: 'plug',
     title: 'Connect with a Connection String',
-    desc: 'No tedious setup forms. Paste mysql://, JDBC, or simple connection strings and DB Manager fills in the rest automatically.',
+    desc: 'No tedious setup forms. Paste mysql://, postgres://, JDBC, or simple connection strings and DB Manager fills in the rest automatically.',
   },
   {
     icon: 'globe',
     title: 'Works Anywhere, No Install',
-    desc: 'Manage any MySQL or MariaDB — local or remote/cloud — straight from your browser. No database client to download.',
+    desc: 'Manage any MySQL/MariaDB or PostgreSQL — local or remote/cloud — straight from your browser. No database client to download.',
   },
   {
     icon: 'database',
@@ -61,11 +61,11 @@ const highlights = [
 ];
 
 const flow = [
-  {
-    title: 'Paste your connection string',
-    desc: 'Drop in a mysql://, JDBC, or simple connection string. DB Manager parses host, port, user, password, and database for you.',
-    sample: 'mysql://admin:•••••@db.example.com:3306/mydb',
-  },
+    {
+      title: 'Paste your connection string',
+      desc: 'Drop in a mysql://, postgres://, JDBC, or simple connection string. DB Manager parses host, port, user, password, and database for you.',
+      sample: 'postgres://admin:•••••@db.example.com:5432/mydb',
+    },
   {
     title: 'Test and save the connection',
     desc: 'Hit Test Connection to verify credentials, then save. Add as many as you like and switch between them from the navbar.',
@@ -86,7 +86,7 @@ const shots = [
   { src: `${base}screenshots/import-export.png`, title: 'Import & Export', desc: 'Import SQL dumps and CSV files, export results in multiple formats.' },
 ];
 
-const tech = ['Node.js', 'Express', 'MySQL / MariaDB', 'mysql2', 'Bootstrap 5', 'CodeMirror', 'EJS', 'bcrypt'];
+const tech = ['Node.js', 'Express', 'MySQL / MariaDB', 'PostgreSQL', 'mysql2', 'pg', 'Bootstrap 5', 'CodeMirror', 'EJS', 'bcrypt'];
 
 const faqs = [
   {
@@ -95,7 +95,11 @@ const faqs = [
   },
   {
     q: 'Can I manage a remote or cloud database?',
-    a: 'Yes. Works with any reachable MySQL or MariaDB server, including cloud databases like TiDB Cloud, AWS RDS, and Google Cloud SQL. Just enable the SSL option when the server requires it.',
+    a: 'Yes. Works with any reachable MySQL/MariaDB or PostgreSQL server, including cloud databases like TiDB Cloud, AWS RDS, Google Cloud SQL, and Azure Database for PostgreSQL. Just enable the SSL option when the server requires it.',
+  },
+  {
+    q: 'Can I connect to PostgreSQL databases too?',
+    a: 'Yes. PostgreSQL is fully supported with the same feature set as MySQL/MariaDB — browse databases and tables, structure, row CRUD, SQL editor, and import/export. Select PostgreSQL as the database type when adding a connection, or paste a postgres:// or postgresql:// connection string and it is detected automatically.',
   },
   {
     q: 'Do I need to install a database client?',
@@ -111,7 +115,7 @@ const faqs = [
   },
   {
     q: 'Is a local MySQL server required?',
-    a: 'Only one MySQL server is needed to store app data (users and saved connections). The databases you manage can be anywhere — local or remote.',
+    a: 'Only one MySQL server is needed to store app data (users and saved connections). The databases you manage can be anywhere — local or remote — and can be MySQL/MariaDB or PostgreSQL.',
   },
 ];
 ---
@@ -129,7 +133,7 @@ const faqs = [
       <h1 data-reveal="none">Paste a connection string. <span class="accent">You're in.</span></h1>
 
       <p class="lead" data-reveal="none">
-        DB Manager is a web-based MySQL/MariaDB database manager. Connect to any local or remote
+        DB Manager is a web-based database manager for MySQL/MariaDB and PostgreSQL. Connect to any local or remote
         database in seconds, then browse, query, and manage your data — all from the browser.
       </p>
 
